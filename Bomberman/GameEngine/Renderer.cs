@@ -1,35 +1,39 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Controls;
-using System.Windows.Shapes;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
- 
+using System.Windows.Shapes;
+
 namespace Bomberman.GameEngine
 {
   public class Renderer
   {
-    public static Renderer instance;
-    private Canvas board;
-    private Renderer() { }
-    public static Renderer Instance
+    private static Canvas board;
+    public static Canvas Board
     {
-      get
+      private get
       {
-        if (instance == null) instance = new Renderer();
-        return instance;
+        if (board == null)
+        {
+          throw new Exception("Missing render canvas");
+        }
+        return board;
+      }
+      set
+      {
+        board = value;
       }
     }
-    public void SetCanvas(Canvas canvas)
+    private Renderer() { }
+    public static void DrawImage(Uri uri, double x, double y)
     {
-      board = canvas;
-    }
-    public void DrawImage(Uri uri, double x, double y) {
       ImageBrush skin = new ImageBrush();
       skin.ImageSource = new BitmapImage(uri);
       DrawRectangle(skin, x, y);
     }
-    public void DrawRectangle(Brush brush, double x, double y) {
+    public static void DrawRectangle(Brush brush, double x, double y)
+    {
       Rectangle rect = new Rectangle
       {
         Width = Config.ItemSize,
@@ -43,11 +47,11 @@ namespace Bomberman.GameEngine
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
-    private void DrawElement(UIElement el, double x, double y)
+    private static void DrawElement(UIElement el, double x, double y)
     {
       Canvas.SetTop(el, y);
       Canvas.SetLeft(el, x);
-      board.Children.Add(el);
+      Board.Children.Add(el);
     }
   }
 }
