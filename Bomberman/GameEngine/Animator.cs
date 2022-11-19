@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Windows.Threading;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bomberman.GameEngine
 {
   public class Animator
   {
-    private int frameCounter = 0;
+    private int frameCounter;
     private int numFrames;
     private DispatcherTimer timer;
     private Action<int> tickCallback;
@@ -35,6 +31,7 @@ namespace Bomberman.GameEngine
     }
     public void Start()
     {
+      frameCounter = 0;
       timer.Start();
     }
     private void OnTick(object sender, EventArgs e)
