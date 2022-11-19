@@ -11,6 +11,6 @@
 
     <Grid x:Name="gameContainer">
         <Label x:Name="gameTime" Content="{Binding TimeLeft, FallbackValue=0}"/>
-        <Canvas x:Name="gameBoard" Height="585" Width="675" />
+        <Canvas x:Name="gameBoard" Height="585" Width="675" Margin="0,55,125,10" />
     </Grid>
 </Page>

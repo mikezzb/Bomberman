@@ -1,18 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using Bomberman.GameEngine;
+﻿using Bomberman.GameEngine;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Bomberman
 {
@@ -21,11 +8,14 @@ namespace Bomberman
   /// </summary>
   public partial class GamePage : Page
   {
+    private readonly GameController gameController;
     public GamePage()
     {
       InitializeComponent();
-      // bind data context
-      this.DataContext = GameController.Instance;
+      gameController = GameController.Instance;
+      DataContext = gameController;
+      gameController.SetCanvas(gameBoard);
+      gameController.InitGame();
     }
   }
 }

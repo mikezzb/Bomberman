@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Bomberman"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+    <DockPanel>
+        <ContentControl x:Name="ContentControl" />
+        <Frame x:Name="frameNavigation" NavigationUIVisibility="Hidden" />
+    </DockPanel>
 </Window>

@@ -1,7 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
-using System.Collections.Generic;
 
 namespace Bomberman
 {
@@ -18,7 +16,8 @@ namespace Bomberman
       Instance = this;
     }
 
-    public void SwitchView(Page content) { 
+    public void SwitchView(Page content)
+    {
       frameNavigation.Content = content;
     }
   }
