@@ -15,32 +15,23 @@ namespace Bomberman.GameEngine
   public abstract class MovableMapObject : MapObject
   {
     private double speed;
-    private double Speed
-    {
-      get => speed;
-      set
-      {
-        speed = value;
-        Debug.WriteLine($"Setting speed to {speed}");
-        moveAnimator.SetFrameDuration(WalkFrameDuration);
-      }
-    }
     private Direction? currDirection;
-    private Animator moveAnimator;
     private bool stopAfterWalk = false;
+    private readonly Animator moveAnimator;
     private readonly AnimatedSprite animatedSprite;
     private readonly MovableGridPosition movablePosition;
     protected MovableMapObject(int x, int y, string name, Dictionary<string, int?>? variant, string? defaultVariant, double speed = 1.0) : base()
     {
+      this.speed = speed;
       position = new MovableGridPosition(x, y);
       sprite = new AnimatedSprite(name, variant, defaultVariant, ref position);
       animatedSprite = (AnimatedSprite)sprite;
       movablePosition = (MovableGridPosition)position;
       moveAnimator = new Animator(WalkFrameDuration, Config.WalkFrames, OnAnimationTick);
-      Speed = speed;
+      Debug.WriteLine($"Speed {this.speed} | {NormalizedWalkSize}");
     }
     private int WalkFrameDuration { get => (int)(Config.WalkFrameDuration * speed); }
-    private double WalkFrameLength { get => 1.0 / Config.WalkFrames; }
+    private double NormalizedWalkSize { get => (speed / Config.WalkFrames); }
     /// <summary>
     /// Each walk is 1 unit only
     /// </summary>
@@ -61,17 +52,17 @@ namespace Bomberman.GameEngine
       Debug.WriteLine("Stopped walk scheduled");
       stopAfterWalk = true;
     }
-    public void SetSpeed(double speed)
+    protected void SetSpeed(double speed)
     {
-      Speed = speed;
+      this.speed = speed;
     }
-    public void SpeedUp()
+    protected void SpeedUp()
     {
-      Speed += 0.2;
+      speed *= 1.2;
     }
-    public void SpeedDown()
+    protected void SpeedDown()
     {
-      Speed -= 0.2;
+      speed /= 1.2;
     }
     /// <summary>
     /// Draw displacement as walking
@@ -81,7 +72,7 @@ namespace Bomberman.GameEngine
       if (currDirection == null) return;
       bool stopAnimation = (stopAfterWalk && frameNum == 0);
       // shift position & draw
-      movablePosition.Move(currDirection, WalkFrameLength);
+      movablePosition.Move(currDirection, NormalizedWalkSize);
       animatedSprite.DrawUpdate();
       if (stopAnimation) StopWalkAnimation();
     }
