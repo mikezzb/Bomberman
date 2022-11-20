@@ -5,29 +5,19 @@ namespace Bomberman.GameEngine
 {
   public class GridPosition
   {
-    public int X { get; private set; }
-    public int Y { get; private set; }
-    public double OffsetX { get; private set; }
-    public double OffsetY { get; private set; }
+    public int X { get; protected set; }
+    public int Y { get; protected set; }
     public Point CanvasPosition
     {
       get => new Point(CanvasX, CanvasY);
     }
-    public double PreciseX
+    public virtual double CanvasX
     {
-      get => (X + OffsetX);
+      get => X * Config.ItemSize;
     }
-    public double PreciseY
+    public virtual double CanvasY
     {
-      get => (Y + OffsetY);
-    }
-    public double CanvasX
-    {
-      get => PreciseX * Config.ItemSize;
-    }
-    public double CanvasY
-    {
-      get => PreciseY * Config.ItemSize;
+      get => Y * Config.ItemSize;
     }
 
     public GridPosition(int x, int y)
@@ -42,24 +32,6 @@ namespace Bomberman.GameEngine
     public void SetY(int y)
     {
       Y = y;
-    }
-    public void ShiftX(double dx)
-    {
-      SetX(PreciseX + dx);
-    }
-    public void ShiftY(double dy)
-    {
-      SetY(PreciseY + dy);
-    }
-    public void SetX(double x)
-    {
-      X = (int)Math.Truncate(x);
-      OffsetX = x - X;
-    }
-    public void SetY(double y)
-    {
-      Y = (int)Math.Truncate(y);
-      OffsetY = y - Y;
     }
   }
 }
