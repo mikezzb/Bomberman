@@ -14,8 +14,8 @@ namespace Bomberman.GameEngine
     private double walkSize;
     public bool Moving { get; private set; }
     private int? currFrameNum;
-    private Animator imageAnimator;
-    private Animator moveAnimator;
+    private readonly FrameTimer imageTimer;
+    private readonly FrameTimer moveTimer;
     private readonly MovableGridPosition movablePosition;
     /// <summary>
     /// key: variantName, value: frames of the variant
@@ -29,32 +29,45 @@ namespace Bomberman.GameEngine
       ) : base(name, variant, defaultVariant, ref position)
     {
       movablePosition = (MovableGridPosition)position;
-      imageAnimator = new Animator(100, 2, OnTick);
-      moveAnimator = new Animator(Config.WalkFrameDuration, Config.WalkFrames, OnMoveTick, OnMoveEnded);
+      imageTimer = new FrameTimer(100, 2, OnImageTick);
+      moveTimer = new FrameTimer(Config.WalkFrameDuration, Config.WalkFrames, OnMoveTick, OnMoveEnded);
     }
+    /// <summary>
+    /// Move sprite until stop move
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="walkSize"></param>
     public void Move(Direction dir, double walkSize)
     {
+      stopAfterMove = false;
       if (currDir != null)
       {
         Debug.WriteLine($"[{dir} DONE]: RECORD NEXT MOVE");
-        stopAfterMove = false;
         nextDir = dir;
         return;
       }
       currDir = dir;
-      stopAfterMove = false;
       SwitchMoveImage();
       StartAnimation();
       this.walkSize = walkSize;
     }
+    /// <summary>
+    /// Stop moving sprite
+    /// </summary>
+    /// <param name="dir"></param>
     public void StopMove(Direction dir)
     {
-      if (currDir == dir)
+      stopAfterMove = nextDir == null
+        ? currDir == dir : nextDir == dir;
+      if (stopAfterMove)
       {
         Debug.WriteLine($"[{dir} UP]: STOP AFTER DONE");
-        stopAfterMove = true;
       }
     }
+    /// <summary>
+    /// Called every frame to move image on canvas (for walking animation)
+    /// </summary>
+    /// <param name="frameNum"></param>
     private void OnMoveTick(int frameNum)
     {
       if (currDir == null) return;
@@ -63,22 +76,28 @@ namespace Bomberman.GameEngine
       movablePosition.Move(currDir, walkSize);
       DrawUpdate();
     }
+    /// <summary>
+    /// Check game state once a 1 unit walk is done
+    /// <para>- If scheduled next walk, continue move</para>
+    /// <para>- If stop after move, stop move</para>
+    /// </summary>
     public void OnMoveEnded()
     {
       if (nextDir != null)
       {
         Debug.WriteLine("[stop]: CONTINUE");
         ContinueMove();
-        return;
-      }
-      if (stopAfterMove)
+      } else if (stopAfterMove)
       {
         Debug.WriteLine("[stop]: STOP");
         currDir = null;
         StopAnimation();
-        return;
+        movablePosition.FinishMove();
       }
     }
+    /// <summary>
+    /// Continue to move if received next direction command during previous 1 unit walk
+    /// </summary>
     public void ContinueMove()
     {
       bool sameDir = currDir == nextDir;
@@ -86,11 +105,17 @@ namespace Bomberman.GameEngine
       nextDir = null;
       if (!sameDir) SwitchMoveImage();
     }
+    /// <summary>
+    /// Display image for the move direction
+    /// </summary>
     private void SwitchMoveImage()
     {
       string directionName = Config.DirectionName[(Direction)currDir];
       SwitchImage(directionName);
     }
+    /// <summary>
+    /// Override update image to support animated image update
+    /// </summary>
     protected override void UpdateImage()
     {
       if (currFrameNum == null) base.UpdateImage();
@@ -114,15 +139,15 @@ namespace Bomberman.GameEngine
     }
     public void StartAnimation()
     {
-      imageAnimator.Start();
-      moveAnimator.Start();
+      imageTimer.Start();
+      moveTimer.Start();
     }
     public void StopAnimation()
     {
-      imageAnimator.Stop();
-      moveAnimator.Stop();
+      imageTimer.Stop();
+      moveTimer.Stop();
     }
-    private void OnTick(int frameNum)
+    private void OnImageTick(int frameNum)
     {
       if (currFrameNum != frameNum)
       {
@@ -131,34 +156,9 @@ namespace Bomberman.GameEngine
       }
       DrawUpdate();
     }
-    /*
-    public void Move(Direction dir, EventHandler? callback)
-    {
-      if (Moving) return;
-      Moving = true;
-      nextDir = dir;
-      Debug.WriteLine("Start move");
-      Point postCanvasPos = ((MovableGridPosition)position).SetPostMovePosition(dir);
-      Debug.WriteLine(postCanvasPos);
-
-      ThicknessAnimation ani = new ThicknessAnimation();
-      ani.From = new Thickness(position.CanvasX, position.CanvasY, 0, 0);
-      ani.To = new Thickness(postCanvasPos.X, postCanvasPos.Y, 0, 0);
-      ani.Duration = TimeSpan.FromMilliseconds(200);
-      ani.FillBehavior = FillBehavior.HoldEnd;
-      ani.Completed += OnMoveCompleted;
-      ani.Completed += callback;
-      Debug.WriteLine(ani.From);
-      // ani.Completed += callback;
-      canvasImage.BeginAnimation(FrameworkElement.MarginProperty, ani);
-    }
-    */
-    private void OnMoveCompleted(object sender, EventArgs e)
-    {
-      Debug.WriteLine("stopped move");
-      ((MovableGridPosition)position).Move(nextDir, 1);
-      Moving = false;
-    }
+    /// <summary>
+    /// Load both static & animated images
+    /// </summary>
     protected override void LoadImages()
     {
       // Mount all images
@@ -181,7 +181,8 @@ namespace Bomberman.GameEngine
       DrawElement();
     }
     /// <summary>
-    /// As movable object shall display above background, it's default zIndex is 2
+    /// Draw image on canvas
+    /// <para>As movable object shall display above background, it's default zIndex is 2</para>
     /// </summary>
     /// <param name="zIndex"></param>
     public override void DrawElement(int zIndex = 2)
@@ -193,10 +194,6 @@ namespace Bomberman.GameEngine
       return frameNum == 0 ?
         GetImageUri(variantName) :
         GetImageUriFromName($"{name}_{variantName}{frameNum}");
-    }
-    private static Uri GetImageUriFromName(string name)
-    {
-      return new Uri("Resources/" + name + Config.ImageExt, UriKind.Relative);
     }
   }
 }
