@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Bomberman.GameEngine.Enums;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Bomberman.GameEngine.Enums;
 
-namespace Bomberman.GameEngine
+namespace Bomberman.GameEngine.MapObjects
 {
   /// <summary>
   /// Abstract class of movable map object in game, including everything visible on the map
@@ -15,9 +14,6 @@ namespace Bomberman.GameEngine
   public abstract class MovableMapObject : MapObject
   {
     private double speed;
-    private Direction? currDirection;
-    private bool stopAfterWalk = false;
-    private readonly Animator moveAnimator;
     private readonly AnimatedSprite animatedSprite;
     private readonly MovableGridPosition movablePosition;
     protected MovableMapObject(int x, int y, string name, Dictionary<string, int?>? variant, string? defaultVariant, double speed = 1.0) : base()
@@ -27,30 +23,19 @@ namespace Bomberman.GameEngine
       sprite = new AnimatedSprite(name, variant, defaultVariant, ref position);
       animatedSprite = (AnimatedSprite)sprite;
       movablePosition = (MovableGridPosition)position;
-      moveAnimator = new Animator(WalkFrameDuration, Config.WalkFrames, OnAnimationTick);
       Debug.WriteLine($"Speed {this.speed} | {NormalizedWalkSize}");
     }
-    private int WalkFrameDuration { get => (int)(Config.WalkFrameDuration * speed); }
     private double NormalizedWalkSize { get => (speed / Config.WalkFrames); }
     /// <summary>
     /// Each walk is 1 unit only
     /// </summary>
-    public void StartWalk(Direction dir)
+    public void Move(Direction dir)
     {
-      if (currDirection != null) return;
-      stopAfterWalk = false;
-      currDirection = dir;
-      string directionName = Config.DirectionName[dir];
-      animatedSprite.SwitchImage(directionName);
-      animatedSprite.StartAnimation();
-      moveAnimator.Start();
+      animatedSprite.Move(dir, NormalizedWalkSize);
     }
-    /// <summary>
-    /// Stop Walk (but still will finish current walk)
-    /// </summary>
-    public void StopWalk() {
-      Debug.WriteLine("Stopped walk scheduled");
-      stopAfterWalk = true;
+    public void StopMove(Direction dir)
+    {
+      animatedSprite.StopMove(dir);
     }
     protected void SetSpeed(double speed)
     {
@@ -64,26 +49,9 @@ namespace Bomberman.GameEngine
     {
       speed /= 1.2;
     }
-    /// <summary>
-    /// Draw displacement as walking
-    /// </summary>
-    private void OnAnimationTick(int frameNum)
+    public override void Dispose()
     {
-      if (currDirection == null) return;
-      bool stopAnimation = (stopAfterWalk && frameNum == 0);
-      // shift position & draw
-      movablePosition.Move(currDirection, NormalizedWalkSize);
-      animatedSprite.DrawUpdate();
-      if (stopAnimation) StopWalkAnimation();
-    }
-    private void StopWalkAnimation()
-    {
-      Debug.WriteLine("Stop Walk Animation");
-      animatedSprite.StopAnimation();
-      movablePosition.ResetOffset();
-      moveAnimator.Stop();
-      currDirection = null;
-      stopAfterWalk = false;
+      base.Dispose();
     }
   }
 }
