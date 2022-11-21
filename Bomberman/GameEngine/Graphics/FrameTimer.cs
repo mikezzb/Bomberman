@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Threading;
 
-namespace Bomberman.GameEngine
+namespace Bomberman.GameEngine.Graphics
 {
   /// <summary>
   /// Frame based timer
@@ -38,6 +38,7 @@ namespace Bomberman.GameEngine
     public void Start()
     {
       FrameCounter = 0;
+      OnTick(this, new EventArgs()); // start frame animation immediately
       IsRunning = true;
       timer.Start();
     }

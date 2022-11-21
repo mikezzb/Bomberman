@@ -18,6 +18,14 @@ namespace Bomberman.GameEngine
     {
       get => Y * Config.ItemSize;
     }
+    public double CanvasX2
+    {
+      get => CanvasX + Config.ItemSize;
+    }
+    public double CanvasY2
+    {
+      get => CanvasY + Config.ItemSize;
+    }
 
     public GridPosition(int x, int y)
     {
@@ -31,6 +39,12 @@ namespace Bomberman.GameEngine
     public void SetY(int y)
     {
       Y = y;
+    }
+    public bool IntersectsWith(GridPosition p)
+    {
+      bool xIntersect = p.CanvasX2 >= CanvasX && p.CanvasX <= CanvasX2;
+      bool yIntersect = p.CanvasY2 >= CanvasY && p.CanvasY <= CanvasY2;
+      return xIntersect && yIntersect;
     }
   }
 }

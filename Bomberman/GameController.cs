@@ -1,4 +1,5 @@
 ﻿using Bomberman.GameEngine.Enums;
+using Bomberman.GameEngine.Graphics;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -93,7 +94,7 @@ namespace Bomberman.GameEngine
       Direction? direction = Utilities.Key2Direction(e.Key);
       if (direction != null)
       {
-        Debug.WriteLine("[DOWN]" + e.Key);
+        // Debug.WriteLine("[DOWN]" + e.Key);
         game.PlayerStartWalk((Direction)direction);
         return;
       }
@@ -109,7 +110,7 @@ namespace Bomberman.GameEngine
       Direction? direction = Utilities.Key2Direction(e.Key);
       if (direction != null)
       {
-        Debug.WriteLine("[UP]" + e.Key);
+        // Debug.WriteLine("[UP]" + e.Key);
         game.PlayerStopWalk((Direction)direction);
         return;
       }

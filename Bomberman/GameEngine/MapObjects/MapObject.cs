@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bomberman.GameEngine.Graphics;
+using System.Collections.Generic;
 
 namespace Bomberman.GameEngine.MapObjects
 {
@@ -12,6 +13,7 @@ namespace Bomberman.GameEngine.MapObjects
   public abstract class MapObject
   {
     protected GridPosition position;
+    public GridPosition Position { get => position; }
     protected Sprite sprite;
     /// <summary>
     /// Do nothing constructor for inherited class to define their own

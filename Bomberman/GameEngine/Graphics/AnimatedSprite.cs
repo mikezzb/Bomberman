@@ -4,19 +4,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
 
-namespace Bomberman.GameEngine
+namespace Bomberman.GameEngine.Graphics
 {
   public class AnimatedSprite : Sprite
   {
-    private Direction? currDir;
+    private  Direction? currDir;
     private Direction? nextDir;
     private bool stopAfterMove;
     private double walkSize;
-    public bool Moving { get; private set; }
+    public bool Moving { get => currDir != null; }
     private int? currFrameNum;
     private readonly FrameTimer imageTimer;
     private readonly FrameTimer moveTimer;
     private readonly MovableGridPosition movablePosition;
+    private readonly EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove;
     /// <summary>
     /// key: variantName, value: frames of the variant
     /// </summary>
@@ -25,9 +26,11 @@ namespace Bomberman.GameEngine
       string name,
       Dictionary<string, int?>? variant,
       string? defaultVariant,
-      ref GridPosition position
+      ref GridPosition position,
+      EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove
       ) : base(name, variant, defaultVariant, ref position)
     {
+      this.onBeforeNextMove = onBeforeNextMove;
       movablePosition = (MovableGridPosition)position;
       imageTimer = new FrameTimer(100, 2, OnImageTick);
       moveTimer = new FrameTimer(Config.WalkFrameDuration, Config.WalkFrames, OnMoveTick, OnMoveEnded);
@@ -42,14 +45,28 @@ namespace Bomberman.GameEngine
       stopAfterMove = false;
       if (currDir != null)
       {
-        Debug.WriteLine($"[{dir} DONE]: RECORD NEXT MOVE");
+        Debug.WriteLine($"[NEXT MOVE]: {dir}");
         nextDir = dir;
         return;
       }
+      Debug.WriteLine($"[MOVE]: {dir}");
       currDir = dir;
       SwitchMoveImage();
       StartAnimation();
       this.walkSize = walkSize;
+    }
+    public IntPoint PostMovePosition(Direction dir)
+    {
+      // if moving, need consider post move after current move
+      if (Moving)
+      {
+        IntPoint afterCurrMovePos = movablePosition.PostMovePosition((Direction)currDir);
+        return movablePosition.PostMovePosition(dir, afterCurrMovePos);
+      }
+      else
+      {
+        return movablePosition.PostMovePosition(dir);
+      }
     }
     /// <summary>
     /// Stop moving sprite
@@ -61,7 +78,7 @@ namespace Bomberman.GameEngine
         ? currDir == dir : nextDir == dir;
       if (stopAfterMove)
       {
-        Debug.WriteLine($"[{dir} UP]: STOP AFTER DONE");
+        // Debug.WriteLine($"[{dir} UP]: STOP AFTER DONE");
       }
     }
     /// <summary>
@@ -71,7 +88,7 @@ namespace Bomberman.GameEngine
     private void OnMoveTick(int frameNum)
     {
       if (currDir == null) return;
-      Debug.WriteLine($"[{currDir}]-{frameNum}");
+      // Debug.WriteLine($"[{currDir}]-{frameNum}");
       // shift position & draw
       movablePosition.Move(currDir, walkSize);
       DrawUpdate();
@@ -83,27 +100,51 @@ namespace Bomberman.GameEngine
     /// </summary>
     public void OnMoveEnded()
     {
+      movablePosition.FinishMove();
       if (nextDir != null)
       {
-        Debug.WriteLine("[stop]: CONTINUE");
         ContinueMove();
       } else if (stopAfterMove)
       {
-        Debug.WriteLine("[stop]: STOP");
-        currDir = null;
-        StopAnimation();
-        movablePosition.FinishMove();
+        StopMove();
+      } else
+      {
+        ContinueMove();
       }
     }
     /// <summary>
-    /// Continue to move if received next direction command during previous 1 unit walk
+    /// Continue to move
+    /// <para>- Cond 1: if received next direction command during previous 1 unit walk</para>
+    /// <para>- Cond 2: if current direction NOT key up yet</para>
     /// </summary>
     public void ContinueMove()
     {
-      bool sameDir = currDir == nextDir;
-      currDir = nextDir;
-      nextDir = null;
-      if (!sameDir) SwitchMoveImage();
+      IntPoint from = movablePosition.GridPosition;
+      IntPoint to = movablePosition.PostMovePosition((Direction)(nextDir ?? currDir));
+      BeforeNextMoveEventArgs e = new(from, to);
+      onBeforeNextMove(this, e);
+      if (e.Cancel)
+      {
+        Debug.WriteLine("[stop]: CONTINUE CANCELLED");
+        StopMove();
+        nextDir = null;
+      } else if (nextDir != null)
+      {
+        Debug.WriteLine("[stop]: CONTINUE NEXT DIR");
+        bool sameDir = currDir == nextDir;
+        currDir = nextDir;
+        if (!sameDir) SwitchMoveImage();
+        nextDir = null;
+      } else
+      {
+        Debug.WriteLine("[stop]: CONTINUE TILL KEYUP");
+      }
+    }
+    private void StopMove()
+    {
+      Debug.WriteLine("[stop]: STOP");
+      currDir = null;
+      StopAnimation();
     }
     /// <summary>
     /// Display image for the move direction

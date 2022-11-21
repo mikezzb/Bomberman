@@ -5,7 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Bomberman.GameEngine
+namespace Bomberman.GameEngine.Graphics
 {
   public class Sprite : IDisposable
   {

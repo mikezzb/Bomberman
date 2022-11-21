@@ -25,6 +25,9 @@ namespace Bomberman.GameEngine
     {
       get => PreciseY * Config.ItemSize;
     }
+    public IntPoint GridPosition {  get => new IntPoint(GridX, GridY); }
+    public int GridX { get => (int)Math.Ceiling(PreciseX);  }
+    public int GridY { get => (int)Math.Ceiling(PreciseY); }
     public int NextX { get; private set; }
     public int NextY { get; private set; }
     public void ShiftX(double dx)
@@ -45,6 +48,23 @@ namespace Bomberman.GameEngine
     {
       if (translation.X != 0) ShiftX(translation.X);
       if (translation.Y != 0) ShiftY(translation.Y);
+    }
+    public IntPoint PostMovePosition(Direction dir) {
+
+      Point translation = SolveMoveTranslation(dir, 1);
+      // assume current walk is completed, so round up
+      translation.X += X;
+      translation.Y += Y;
+      return new IntPoint((int)translation.X, (int)translation.Y);
+    }
+    public IntPoint PostMovePosition(Direction dir, IntPoint from)
+    {
+
+      Point translation = SolveMoveTranslation(dir, 1);
+      // assume current walk is completed, so round up
+      translation.X += from.X;
+      translation.Y += from.Y;
+      return new IntPoint((int)translation.X, (int)translation.Y);
     }
     private static Point SolveMoveTranslation(Direction dir, double delta = 1)
     {
