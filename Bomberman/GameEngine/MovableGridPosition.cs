@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Bomberman.GameEngine.Enums;
+using System;
 using System.Windows;
-using Bomberman.GameEngine.Enums;
 
 namespace Bomberman.GameEngine
 {
@@ -25,6 +25,8 @@ namespace Bomberman.GameEngine
     {
       get => PreciseY * Config.ItemSize;
     }
+    public int NextX { get; private set; }
+    public int NextY { get; private set; }
     public void ShiftX(double dx)
     {
       OffsetX += dx;
@@ -36,26 +38,38 @@ namespace Bomberman.GameEngine
     public void Move(Direction? dir, double delta)
     {
       if (dir == null) return;
+      Point translation = SolveMoveTranslation((Direction)dir, delta);
+      Move(translation);
+    }
+    private void Move(Point translation)
+    {
+      if (translation.X != 0) ShiftX(translation.X);
+      if (translation.Y != 0) ShiftY(translation.Y);
+    }
+    private static Point SolveMoveTranslation(Direction dir, double delta = 1)
+    {
+      double dx = 0, dy = 0;
       switch (dir)
       {
         case Direction.Left:
-          ShiftX(-delta);
+          dx = -delta;
           break;
         case Direction.Right:
-          ShiftX(delta);
+          dx = delta;
           break;
         case Direction.Up:
-          ShiftY(-delta);
+          dy = -delta;
           break;
         case Direction.Down:
-          ShiftY(delta);
+          dy = delta;
           break;
       }
+      return new Point(dx, dy);
     }
     /// <summary>
     /// Called after move (i.e. when grid pos is int)
     /// </summary>
-    public void ResetOffset()
+    public void FinishMove()
     {
       X += (int)Math.Round(OffsetX);
       Y += (int)Math.Round(OffsetY);
