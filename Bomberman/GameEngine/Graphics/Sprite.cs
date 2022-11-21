@@ -16,6 +16,7 @@ namespace Bomberman.GameEngine.Graphics
     protected GridPosition position;
     protected ImageBrush imageBrush = new ImageBrush();
     protected UIElement canvasImage;
+    protected int zIndex;
     /// <summary>
     /// key: variantName
     /// </summary>
@@ -24,9 +25,11 @@ namespace Bomberman.GameEngine.Graphics
       string name,
       Dictionary<string, int?>? variant,
       string? defaultVariant,
-      ref GridPosition position
+      ref GridPosition position,
+      int zIndex = 1
       )
     {
+      this.zIndex = zIndex;
       this.name = name;
       this.variant = variant ?? new Dictionary<string, int?>() { { "default", null } };
       this.position = position;
@@ -62,9 +65,9 @@ namespace Bomberman.GameEngine.Graphics
       }
       DrawElement();
     }
-    public virtual void DrawElement(int zIndex = 1)
+    public virtual void DrawElement()
     {
-      Renderer.DrawElement(canvasImage, position.CanvasX, position.CanvasY, zIndex);
+      Renderer.DrawElement(canvasImage, position.CanvasX, position.CanvasY, this.zIndex);
     }
     public void DrawUpdate()
     {

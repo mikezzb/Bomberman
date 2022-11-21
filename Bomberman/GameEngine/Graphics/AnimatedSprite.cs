@@ -8,7 +8,7 @@ namespace Bomberman.GameEngine.Graphics
 {
   public class AnimatedSprite : Sprite
   {
-    private  Direction? currDir;
+    private Direction? currDir;
     private Direction? nextDir;
     private bool stopAfterMove;
     private double walkSize;
@@ -104,10 +104,12 @@ namespace Bomberman.GameEngine.Graphics
       if (nextDir != null)
       {
         ContinueMove();
-      } else if (stopAfterMove)
+      }
+      else if (stopAfterMove)
       {
         StopMove();
-      } else
+      }
+      else
       {
         ContinueMove();
       }
@@ -128,14 +130,16 @@ namespace Bomberman.GameEngine.Graphics
         Debug.WriteLine("[stop]: CONTINUE CANCELLED");
         StopMove();
         nextDir = null;
-      } else if (nextDir != null)
+      }
+      else if (nextDir != null)
       {
         Debug.WriteLine("[stop]: CONTINUE NEXT DIR");
         bool sameDir = currDir == nextDir;
         currDir = nextDir;
         if (!sameDir) SwitchMoveImage();
         nextDir = null;
-      } else
+      }
+      else
       {
         Debug.WriteLine("[stop]: CONTINUE TILL KEYUP");
       }
@@ -220,15 +224,6 @@ namespace Bomberman.GameEngine.Graphics
         }
       }
       DrawElement();
-    }
-    /// <summary>
-    /// Draw image on canvas
-    /// <para>As movable object shall display above background, it's default zIndex is 2</para>
-    /// </summary>
-    /// <param name="zIndex"></param>
-    public override void DrawElement(int zIndex = 2)
-    {
-      base.DrawElement(zIndex);
     }
     private Uri GetAnimatedImageUri(string variantName, int frameNum)
     {

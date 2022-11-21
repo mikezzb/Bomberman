@@ -19,10 +19,10 @@ namespace Bomberman.GameEngine.MapObjects
     /// Do nothing constructor for inherited class to define their own
     /// </summary>
     protected MapObject() { }
-    protected MapObject(int x, int y, string name, Dictionary<string, int?>? variant, string? defaultVariant)
+    protected MapObject(int x, int y, string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1)
     {
       position = new GridPosition(x, y);
-      sprite = new Sprite(name, variant, defaultVariant, ref position);
+      sprite = new Sprite(name, variant, defaultVariant, ref position, zIndex);
     }
     /// <summary>
     /// Dispose a map object in GUI, perform cleanup actions
