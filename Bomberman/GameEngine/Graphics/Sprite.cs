@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
@@ -69,7 +68,7 @@ namespace Bomberman.GameEngine
     }
     public void DrawUpdate()
     {
-      Debug.WriteLine($"Update x: {position.CanvasX} y: {position.CanvasY}");
+      // Debug.WriteLine($"Update x: {position.CanvasX} y: {position.CanvasY}");
       Renderer.PositionElement(canvasImage, position.CanvasX, position.CanvasY);
     }
     protected static BitmapImage GetImage(Uri uri)
@@ -80,7 +79,7 @@ namespace Bomberman.GameEngine
     {
       return GetImageUriFromName(variantName == "default" ? defaultName : $"{name}_{variantName}");
     }
-    private static Uri GetImageUriFromName(string name)
+    protected static Uri GetImageUriFromName(string name)
     {
       return new Uri("Resources/" + name + Config.ImageExt, UriKind.Relative);
     }
