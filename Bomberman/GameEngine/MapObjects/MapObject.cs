@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Bomberman.GameEngine
+namespace Bomberman.GameEngine.MapObjects
 {
   /// <summary>
   /// Abstract class of map object in game, including everything visible on the map
