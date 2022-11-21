@@ -1,24 +1,22 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Bomberman.GameEngine.Enums;
+using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Media;
+using System.Diagnostics;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Bomberman.GameEngine
 {
   public class AnimatedSprite : Sprite
   {
+    private Direction? currDir;
+    private Direction? nextDir;
+    private bool stopAfterMove;
+    private double walkSize;
+    public bool Moving { get; private set; }
     private int? currFrameNum;
-    private Animator? animator;
-    public Animator Animator
-    {
-      get
-      {
-        if (animator == null) animator = new Animator(100, 2, OnTick); return animator;
-      }
-    }
+    private Animator imageAnimator;
+    private Animator moveAnimator;
+    private readonly MovableGridPosition movablePosition;
     /// <summary>
     /// key: variantName, value: frames of the variant
     /// </summary>
@@ -30,6 +28,63 @@ namespace Bomberman.GameEngine
       ref GridPosition position
       ) : base(name, variant, defaultVariant, ref position)
     {
+      movablePosition = (MovableGridPosition)position;
+      imageAnimator = new Animator(100, 2, OnTick);
+      moveAnimator = new Animator(Config.WalkFrameDuration, Config.WalkFrames, OnMoveTick, OnMoveEnded);
+    }
+    public void Move(Direction dir, double walkSize)
+    {
+      stopAfterMove = false;
+      if (currDir != null)
+      {
+        nextDir = dir;
+        return;
+      }
+      currDir = dir;
+      SwitchMoveImage();
+      StartAnimation();
+      this.walkSize = walkSize;
+    }
+    public void StopMove(Direction dir)
+    {
+      if (currDir == dir)
+      {
+        stopAfterMove = true;
+      }
+    }
+    private void OnMoveTick(int frameNum)
+    {
+      if (currDir == null) return;
+      Debug.WriteLine($"[{currDir}]-{frameNum}");
+      // shift position & draw
+      movablePosition.Move(currDir, walkSize);
+      DrawUpdate();
+    }
+    public void OnMoveEnded()
+    {
+      if (nextDir == null)
+      {
+        Debug.WriteLine("[stop]: STOP");
+        currDir = null;
+        StopAnimation();
+      }
+      else
+      {
+        Debug.WriteLine("[stop]: CONTINUE");
+        ContinueMove();
+      }
+    }
+    public void ContinueMove()
+    {
+      bool sameDir = currDir == nextDir;
+      currDir = nextDir;
+      nextDir = null;
+      if (!sameDir) SwitchMoveImage();
+    }
+    private void SwitchMoveImage()
+    {
+      string directionName = Config.DirectionName[(Direction)currDir];
+      SwitchImage(directionName);
     }
     protected override void UpdateImage()
     {
@@ -54,11 +109,13 @@ namespace Bomberman.GameEngine
     }
     public void StartAnimation()
     {
-      Animator.Start();
+      imageAnimator.Start();
+      moveAnimator.Start();
     }
     public void StopAnimation()
     {
-      Animator.Stop();
+      imageAnimator.Stop();
+      moveAnimator.Stop();
     }
     private void OnTick(int frameNum)
     {
@@ -67,8 +124,35 @@ namespace Bomberman.GameEngine
         currFrameNum = frameNum;
         UpdateImage();
       }
-      Debug.WriteLine("Sprite ticking");
       DrawUpdate();
+    }
+    /*
+    public void Move(Direction dir, EventHandler? callback)
+    {
+      if (Moving) return;
+      Moving = true;
+      nextDir = dir;
+      Debug.WriteLine("Start move");
+      Point postCanvasPos = ((MovableGridPosition)position).SetPostMovePosition(dir);
+      Debug.WriteLine(postCanvasPos);
+
+      ThicknessAnimation ani = new ThicknessAnimation();
+      ani.From = new Thickness(position.CanvasX, position.CanvasY, 0, 0);
+      ani.To = new Thickness(postCanvasPos.X, postCanvasPos.Y, 0, 0);
+      ani.Duration = TimeSpan.FromMilliseconds(200);
+      ani.FillBehavior = FillBehavior.HoldEnd;
+      ani.Completed += OnMoveCompleted;
+      ani.Completed += callback;
+      Debug.WriteLine(ani.From);
+      // ani.Completed += callback;
+      canvasImage.BeginAnimation(FrameworkElement.MarginProperty, ani);
+    }
+    */
+    private void OnMoveCompleted(object sender, EventArgs e)
+    {
+      Debug.WriteLine("stopped move");
+      ((MovableGridPosition)position).Move(nextDir, 1);
+      Moving = false;
     }
     protected override void LoadImages()
     {
