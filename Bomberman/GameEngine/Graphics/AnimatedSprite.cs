@@ -34,13 +34,15 @@ namespace Bomberman.GameEngine
     }
     public void Move(Direction dir, double walkSize)
     {
-      stopAfterMove = false;
       if (currDir != null)
       {
+        Debug.WriteLine($"[{dir} DONE]: RECORD NEXT MOVE");
+        stopAfterMove = false;
         nextDir = dir;
         return;
       }
       currDir = dir;
+      stopAfterMove = false;
       SwitchMoveImage();
       StartAnimation();
       this.walkSize = walkSize;
@@ -49,6 +51,7 @@ namespace Bomberman.GameEngine
     {
       if (currDir == dir)
       {
+        Debug.WriteLine($"[{dir} UP]: STOP AFTER DONE");
         stopAfterMove = true;
       }
     }
@@ -62,16 +65,18 @@ namespace Bomberman.GameEngine
     }
     public void OnMoveEnded()
     {
-      if (nextDir == null)
+      if (nextDir != null)
+      {
+        Debug.WriteLine("[stop]: CONTINUE");
+        ContinueMove();
+        return;
+      }
+      if (stopAfterMove)
       {
         Debug.WriteLine("[stop]: STOP");
         currDir = null;
         StopAnimation();
-      }
-      else
-      {
-        Debug.WriteLine("[stop]: CONTINUE");
-        ContinueMove();
+        return;
       }
     }
     public void ContinueMove()
