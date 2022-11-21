@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bomberman", "Bomberman\Bomberman.csproj", "{C630FF90-1ABB-4960-BE9D-D16DDDB42CCF}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BombermanTests", "BombermanTests", "{BB867848-2026-48D5-9CB2-BC1DAD6635FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bomberman", "Bomberman\Bomberman.csproj", "{C630FF90-1ABB-4960-BE9D-D16DDDB42CCF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BombermanDemo", "BombermanDemo", "{65E914FC-D006-4E33-9F20-278F22A9280E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BombermanTests", "BombermanTests\BombermanTests.csproj", "{A877ABE3-358E-4FF7-8648-6FB26CA93966}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +19,10 @@ Global
 		{C630FF90-1ABB-4960-BE9D-D16DDDB42CCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C630FF90-1ABB-4960-BE9D-D16DDDB42CCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C630FF90-1ABB-4960-BE9D-D16DDDB42CCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A877ABE3-358E-4FF7-8648-6FB26CA93966}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A877ABE3-358E-4FF7-8648-6FB26CA93966}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A877ABE3-358E-4FF7-8648-6FB26CA93966}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A877ABE3-358E-4FF7-8648-6FB26CA93966}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
