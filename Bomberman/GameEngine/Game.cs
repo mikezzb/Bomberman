@@ -1,9 +1,9 @@
 ﻿using Bomberman.GameEngine.Enums;
 using Bomberman.GameEngine.MapObjects;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System;
 
 namespace Bomberman.GameEngine
 {
@@ -16,7 +16,12 @@ namespace Bomberman.GameEngine
   /// </summary>
   public class Game
   {
-    private readonly List<MapObject> map = new();
+    /// <summary>
+    /// Key: index
+    /// Value: a map object
+    /// </summary>
+    private readonly Dictionary<int, MapObject> map = new();
+    private readonly Dictionary<int, Powerup> powerups = new();
     /// <summary>
     /// Key: position
     /// Value: if blocker exists on that position
@@ -33,12 +38,101 @@ namespace Bomberman.GameEngine
       }
     }
     private Game() { }
+    public IntPoint GetRandomPosition(bool isBlocker = true)
+    {
+      Random r = new();
+      // 1 & -1 is cuz boundary all walls
+      int x, y;
+      string key;
+      do
+      {
+        x = r.Next(1, Config.Width - 1);
+        y = r.Next(1, Config.Height - 1);
+        key = Point2Key(x, y);
+      } while (
+        blockers.Contains(key) ||
+        (x == 1 && y == 1) ||
+        (x == 1 && y == 2) ||
+        (x == 2 && y == 1)
+       );
+      if (isBlocker)
+      {
+        blockers.Add(key);
+      }
+      return new IntPoint(x, y);
+    }
     public void InitGame()
     {
+      InitMap();
+      // init bricks
+      InitBricksAndBehinds();
+      // init player
       player = new Player();
       player.BeforeNextMove += OnBeforeNextMove;
-      InitMap();
+      // init 2 mobs
+
     }
+    public static HashSet<int> GetRandomNumbers(int count, int min, int max)
+    {
+      HashSet<int> numbers = new();
+      Random r = new();
+      for (int i = 0; i < count; i++)
+      {
+        int num;
+        do
+        {
+          num = r.Next(min, max);
+        } while (numbers.Contains(num));
+        numbers.Add(num);
+      }
+      return numbers;
+    }
+    public void InitBricksAndBehinds()
+    {
+      /*
+       * random pick some bricks for hiding pu & key & door
+       * - 0, 1 for key & door
+       * - rest for powerups
+       */
+      HashSet<int> magicBricks = GetRandomNumbers(2 + Config.NumPowerups, 0, Config.NumBricks);
+      int countMagicBricks = 0;
+      for (int i = 0; i < Config.NumBricks; i++)
+      {
+        IntPoint pos = GetRandomPosition(true);
+        Brick brick = new Brick(pos.X, pos.Y);
+        Debug.WriteLine(pos);
+        int posIndex = Point2Index(pos);
+        map.Add(posIndex, brick);
+        // handle magic brick
+        if (magicBricks.Contains(i))
+        {
+          if (countMagicBricks == 0)
+          {
+            // add key
+          } else if (countMagicBricks == 1)
+          {
+            // add door
+          } else if (countMagicBricks < (2 + Config.NumSpeedPU))
+          {
+            PowerupSpeed powerupSpeed = new(pos.X, pos.Y);
+            powerups.Add(posIndex, powerupSpeed);
+          } else
+          {
+            PowerupBomb powerupBomb = new(pos.X, pos.Y);
+            powerups.Add(posIndex, powerupBomb);
+          }
+          countMagicBricks++;
+        }
+      }
+    }
+    public void RemoveBrick(IntPoint point)
+    {
+      blockers.Remove(Point2Key(point));
+    }
+    /// <summary>
+    /// Init stationary map according to map definition
+    /// </summary>
+    /// <param name="mapDef"></param>
     public void InitMap(string? mapDef = null)
     {
       using (StringReader reader = new(mapDef ?? Config.Map))
@@ -54,18 +148,17 @@ namespace Bomberman.GameEngine
             switch (c)
             {
               case (char)GameObject.Wall:
-                Debug.WriteLine("Wall");
-                Wall wall = new (j, i);
+                Wall wall = new(j, i);
                 isBlocking = true;
-                map.Add(wall);
+                map.Add(Point2Index(j, i), wall);
                 break;
               case (char)GameObject.Floor:
                 Debug.WriteLine("Floor");
-                Floor floor = new (j, i);
-                map.Add(floor);
+                Floor floor = new(j, i);
                 break;
             }
-            if (isBlocking) {
+            if (isBlocking)
+            {
               blockers.Add(Point2Key(j, i));
             }
             j++;
@@ -106,6 +199,18 @@ namespace Bomberman.GameEngine
     public void PlayerStopWalk(Direction dir)
     {
       player.StopMove(dir);
+    }
+    public static int Point2Index(IntPoint point)
+    {
+      return Point2Index(point.X, point.Y);
+    }
+    public static int Point2Index(int x, int y)
+    {
+      return x * Config.Width + y;
+    }
+    public static string Point2Key(IntPoint point)
+    {
+      return Point2Key(point.X, point.Y);
     }
     public static string Point2Key(int x, int y)
     {

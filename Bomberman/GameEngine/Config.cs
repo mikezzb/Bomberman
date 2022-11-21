@@ -11,6 +11,11 @@ namespace Bomberman.GameEngine
     public static readonly string Map = Resources.map;
     public static readonly int WalkFrames = 8;
     public static readonly int WalkFrameDuration = 30;
+    // set to 246 to test random generation
+    public static readonly int NumBricks = 50;
+    public static readonly int NumExplosionPU = 5;
+    public static readonly int NumSpeedPU = 5;
+    public static readonly int NumPowerups = NumExplosionPU + NumSpeedPU;
     /// <summary>
     /// Time to walk 1 unit in ms
     /// </summary>
