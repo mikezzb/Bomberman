@@ -13,6 +13,7 @@ namespace Bomberman.GameEngine.Graphics
     private bool stopAfterMove;
     private double walkSize;
     public bool Moving { get => currDir != null; }
+    public Direction? CurrDir { get => currDir; }
     private int? currFrameNum;
     private readonly FrameTimer imageTimer;
     private readonly FrameTimer moveTimer;
@@ -27,9 +28,12 @@ namespace Bomberman.GameEngine.Graphics
       Dictionary<string, int?>? variant,
       string? defaultVariant,
       ref GridPosition position,
-      EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove
-      ) : base(name, variant, defaultVariant, ref position)
+      EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove,
+      int zIndex = 1
+      ) : base(name, variant, defaultVariant, ref position, zIndex)
     {
+      // set default sprite
+      animatedImages["default"] = animatedImages[defaultVariant ?? name];
       this.onBeforeNextMove = onBeforeNextMove;
       movablePosition = (MovableGridPosition)position;
       imageTimer = new FrameTimer(100, 2, OnImageTick);
@@ -49,6 +53,15 @@ namespace Bomberman.GameEngine.Graphics
         nextDir = dir;
         return;
       }
+      StartMove(dir, walkSize);
+    }
+    public void ResetMove(Direction dir, double walkSize)
+    {
+      StartMove(dir, walkSize, true);
+    }
+    public void StartMove(Direction dir, double walkSize, bool skipCheck = false)
+    {
+      if (!skipCheck && CanMove(dir).Cancel) return;
       Debug.WriteLine($"[MOVE]: {dir}");
       currDir = dir;
       SwitchMoveImage();
@@ -57,16 +70,7 @@ namespace Bomberman.GameEngine.Graphics
     }
     public IntPoint PostMovePosition(Direction dir)
     {
-      // if moving, need consider post move after current move
-      if (Moving)
-      {
-        IntPoint afterCurrMovePos = movablePosition.PostMovePosition((Direction)currDir);
-        return movablePosition.PostMovePosition(dir, afterCurrMovePos);
-      }
-      else
-      {
-        return movablePosition.PostMovePosition(dir);
-      }
+      return movablePosition.PostMovePosition(dir);
     }
     /// <summary>
     /// Stop moving sprite
@@ -92,6 +96,14 @@ namespace Bomberman.GameEngine.Graphics
       // shift position & draw
       movablePosition.Move(currDir, walkSize);
       DrawUpdate();
+    }
+    private BeforeNextMoveEventArgs CanMove(Direction dir)
+    {
+      IntPoint from = movablePosition.Position;
+      IntPoint to = movablePosition.PostMovePosition(dir);
+      BeforeNextMoveEventArgs e = new(from, to);
+      onBeforeNextMove(this, e);
+      return e;
     }
     /// <summary>
     /// Check game state once a 1 unit walk is done
@@ -121,15 +133,15 @@ namespace Bomberman.GameEngine.Graphics
     /// </summary>
     public void ContinueMove()
     {
-      IntPoint from = movablePosition.GridPosition;
-      IntPoint to = movablePosition.PostMovePosition((Direction)(nextDir ?? currDir));
-      BeforeNextMoveEventArgs e = new(from, to);
-      onBeforeNextMove(this, e);
+      BeforeNextMoveEventArgs e = CanMove((Direction)(nextDir ?? currDir));
       if (e.Cancel)
       {
-        Debug.WriteLine("[stop]: CONTINUE CANCELLED");
-        StopMove();
         nextDir = null;
+        if (e.TurnDirection == null)
+        {
+          Debug.WriteLine("[stop]: CONTINUE CANCELLED");
+          StopMove();
+        }
       }
       else if (nextDir != null)
       {
@@ -164,7 +176,10 @@ namespace Bomberman.GameEngine.Graphics
     protected override void UpdateImage()
     {
       if (currFrameNum == null) base.UpdateImage();
-      else imageBrush.ImageSource = animatedImages[currVariant][(int)currFrameNum];
+      else if (animatedImages.ContainsKey(currVariant))
+      {
+         imageBrush.ImageSource = animatedImages[currVariant][(int)currFrameNum];
+      }
     }
     public override void SwitchImage(string variant)
     {
@@ -174,7 +189,7 @@ namespace Bomberman.GameEngine.Graphics
         base.SwitchImage(variant);
         currFrameNum = null;
       }
-      else
+      else if (animatedImages.ContainsKey(variant))
       {
         currVariant = variant;
         currFrameNum = 0;

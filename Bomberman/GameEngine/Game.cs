@@ -22,6 +22,7 @@ namespace Bomberman.GameEngine
     /// </summary>
     private readonly Dictionary<int, MapObject> map = new();
     private readonly Dictionary<int, Powerup> powerups = new();
+    private readonly Dictionary<int, Mob> mobs = new();
     /// <summary>
     /// Key: position
     /// Value: if blocker exists on that position
@@ -61,15 +62,34 @@ namespace Bomberman.GameEngine
       }
       return new IntPoint(x, y);
     }
+    public List<IntPoint> GetRandomPositions(int count, bool isBlocker = true)
+    {
+      List<IntPoint> positions = new();
+      HashSet<int> generated = new();
+      for (int i = 0; i < count; i++)
+      {
+        IntPoint pos;
+        int idx;
+        do
+        {
+          pos = GetRandomPosition(isBlocker);
+          idx = Point2Index(pos);
+        } while (generated.Contains(idx));
+        positions.Add(pos);
+        generated.Add(idx);
+      }
+      return positions;
+    }
     public void InitGame()
     {
+      // init the stationary map (walls & floor)
       InitMap();
-      // init bricks
+      // init bricks & their behinds
       InitBricksAndBehinds();
       // init player
-      player = new Player();
-      player.BeforeNextMove += OnBeforeNextMove;
-      // init 2 mobs
+      InitPlayer();
+      // init mobs
+      InitMobs();
 
     }
     public static HashSet<int> GetRandomNumbers(int count, int min, int max)
@@ -87,7 +107,25 @@ namespace Bomberman.GameEngine
       }
       return numbers;
     }
-    public void InitBricksAndBehinds()
+    protected virtual void InitMobs() {
+      List<IntPoint> positions = GetRandomPositions(Config.NumMobs, false);
+      int count = 0;
+      foreach(IntPoint pos in positions)
+      {
+        List<Direction> directions = GetMovableDirectionsList(new MovableGridPosition(pos));
+        MobType type = (++count > Config.NumStraightMob) ? MobType.RandomWalk : MobType.StraightWalk;
+        Mob mob = new(pos.X, pos.Y, type, directions);
+        mob.BeforeNextMove += OnBeforeNextMove;
+        mobs.Add(Point2Index(pos), mob);
+      }
+    }
+    protected virtual void InitPlayer()
+    {
+      player = new Player();
+      player.BeforeNextMove += OnBeforeNextMove;
+
+    }
+    protected virtual void InitBricksAndBehinds()
     {
       /*
        * random pick some bricks for hiding pu & key & door
@@ -133,7 +171,7 @@ namespace Bomberman.GameEngine
     /// Init stationary map according to map definition
     /// </summary>
     /// <param name="mapDef"></param>
-    public void InitMap(string? mapDef = null)
+    protected virtual void InitMap(string? mapDef = null)
     {
       using (StringReader reader = new(mapDef ?? Config.Map))
       {
@@ -171,30 +209,53 @@ namespace Bomberman.GameEngine
     // player controls
     public void PlayerStartWalk(Direction dir)
     {
-      // if blocked
-      IntPoint afterPos = player.PostMovePosition(dir);
-      Debug.WriteLine($"[CURR]: x={player.MovablePosition.PreciseX} y={player.MovablePosition.PreciseY}");
-      string afterPosKey = Point2Key(afterPos.X, afterPos.Y);
-      Debug.WriteLine($"[AFTER]: x={afterPos.X} y={afterPos.Y} | {afterPosKey}");
-      if (!CanMoveTo(afterPos))
-      {
-        Debug.WriteLine($"Blocked");
-        return;
-      }
       // move
       player.Move(dir);
     }
     public void OnBeforeNextMove(object sender, BeforeNextMoveEventArgs e)
     {
-      Debug.WriteLine("On before next move called");
+      Debug.WriteLine($"{sender}: On before next move called");
       Debug.WriteLine($"To: {e.To.X}-{e.To.Y}");
       // check can move (wall / brick / bomb)
       e.Cancel = !CanMoveTo(e.To);
+      // if type is mob and blocked, call on intersection reached
+      if (e.Cancel && sender.GetType() == typeof(Mob))
+      {
+        Mob mob = (Mob)sender;
+        Debug.WriteLine("IsMob");
+        HashSet<Direction>? movableDirs = new();
+        foreach (Direction dir in Config.Directions)
+        {
+          if (dir == mob.CurrDir) continue;
+          IntPoint postMovePos = mob.PostMovePosition(dir);
+          if (CanMoveTo(postMovePos)) movableDirs.Add(dir);
+        }
+        mob.OnIntersectionReached(mob.CurrDir, movableDirs, e);
+      }
     }
     public bool CanMoveTo(IntPoint to)
     {
+      // if blocked
       string posKey = Point2Key(to.X, to.Y);
-      return !blockers.Contains(posKey);
+      if (blockers.Contains(posKey)) return false;
+      // if out bound
+      if (to.X < 0 || to.X >= Config.Width || to.Y < 0 || to.Y >= Config.Height) return false;
+      return true;
+    }
+    public List<Direction> GetMovableDirectionsList(MovableGridPosition pos)
+    {
+      List<Direction> directions = new List<Direction>();
+      // IntPoint from = obj.GridPosition;
+      foreach(Direction dir in Config.Directions)
+      {
+        IntPoint to = pos.PostMovePosition(dir);
+        if (CanMoveTo(to)) directions.Add(dir);
+      }
+      return directions;
+    }
+    public HashSet<Direction> GetMovableDirectionsSet(MovableGridPosition pos)
+    {
+      return new HashSet<Direction>(GetMovableDirectionsList(pos));
     }
     public void PlayerStopWalk(Direction dir)
     {
