@@ -12,6 +12,9 @@ namespace Bomberman.GameEngine
     public static readonly int WalkFrames = 8;
     public static readonly int WalkFrameDuration = 30;
     // set to 246 to test random generation
+    public static readonly int NumStraightMob = 2;
+    public static readonly int NumRandomMob = 2;
+    public static readonly int NumMobs = NumStraightMob + NumRandomMob;
     public static readonly int NumBricks = 50;
     public static readonly int NumExplosionPU = 5;
     public static readonly int NumSpeedPU = 5;
@@ -27,6 +30,14 @@ namespace Bomberman.GameEngine
       { Enums.Direction.Left, "left" },
       { Enums.Direction.Right, "right" },
     };
+    public static readonly List<Enums.Direction> Directions = new()
+    {
+      Enums.Direction.Up,
+      Enums.Direction.Down,
+      Enums.Direction.Left,
+      Enums.Direction.Right,
+    };
+    public static readonly HashSet<Enums.Direction> DirectionsSet = new(Directions);
   };
   namespace Enums
   {
@@ -47,6 +58,11 @@ namespace Bomberman.GameEngine
       Down,
       Left,
       Right,
+    }
+    public enum MobType
+    {
+      StraightWalk,
+      RandomWalk
     }
   }
 }

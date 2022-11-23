@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-
+using System.Diagnostics;
 namespace Bomberman.GameEngine
 {
   public class GridPosition
@@ -10,6 +10,7 @@ namespace Bomberman.GameEngine
     {
       get => new Point(CanvasX, CanvasY);
     }
+    public virtual IntPoint Position { get => new IntPoint(X, Y); }
     public virtual double CanvasX
     {
       get => X * Config.ItemSize;
@@ -26,7 +27,14 @@ namespace Bomberman.GameEngine
     {
       get => CanvasY + Config.ItemSize;
     }
-
+    public string Key
+    {
+      get => $"{X}_{Y}";
+    }
+    public int Index
+    {
+      get => X * Config.Width + Y;
+    }
     public GridPosition(int x, int y)
     {
       X = x;
@@ -44,6 +52,9 @@ namespace Bomberman.GameEngine
     {
       bool xIntersect = p.CanvasX2 >= CanvasX && p.CanvasX <= CanvasX2;
       bool yIntersect = p.CanvasY2 >= CanvasY && p.CanvasY <= CanvasY2;
+      // Debug.WriteLine($"[Intersection]: {p.CanvasX},{p.CanvasY}");
+      // Debug.WriteLine($"{CanvasX},{CanvasY}");
+      // Debug.WriteLine($"x: {xIntersect} y: {yIntersect}");
       return xIntersect && yIntersect;
     }
   }

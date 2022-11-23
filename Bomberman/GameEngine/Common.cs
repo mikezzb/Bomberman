@@ -1,6 +1,5 @@
-﻿using Bomberman.GameEngine.Enums;
-using System;
-using System.Windows.Input;
+﻿using System;
+using Bomberman.GameEngine.Enums;
 
 namespace Bomberman.GameEngine
 {
@@ -13,12 +12,17 @@ namespace Bomberman.GameEngine
       X = x;
       Y = y;
     }
+    public override string ToString()
+    {
+      return $"({X},{Y})";
+    }
   }
   public class BeforeNextMoveEventArgs : EventArgs
   {
     public IntPoint From { get; private set; }
     public IntPoint To { get; private set; }
-    public Boolean Cancel { get; set; }
+    public Direction? TurnDirection { get; set; }
+    public bool Cancel { get; set; }
     public BeforeNextMoveEventArgs(IntPoint from, IntPoint to)
     {
       From = from;

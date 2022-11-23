@@ -38,7 +38,7 @@ namespace Bomberman.GameEngine.Graphics
     public void Start()
     {
       FrameCounter = 0;
-      OnTick(this, new EventArgs()); // start frame animation immediately
+      // OnTick(this, new EventArgs()); // start frame animation immediately
       IsRunning = true;
       timer.Start();
     }

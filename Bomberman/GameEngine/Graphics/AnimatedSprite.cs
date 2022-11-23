@@ -62,7 +62,7 @@ namespace Bomberman.GameEngine.Graphics
     public void StartMove(Direction dir, double walkSize, bool skipCheck = false)
     {
       if (!skipCheck && CanMove(dir).Cancel) return;
-      Debug.WriteLine($"[MOVE]: {dir}");
+      // Debug.WriteLine($"[MOVE]: {dir}");
       currDir = dir;
       SwitchMoveImage();
       StartAnimation();
@@ -84,6 +84,12 @@ namespace Bomberman.GameEngine.Graphics
       {
         // Debug.WriteLine($"[{dir} UP]: STOP AFTER DONE");
       }
+    }
+    public void StopMoveNow()
+    {
+      StopAnimation();
+      currDir = null;
+      nextDir = null;
     }
     /// <summary>
     /// Called every frame to move image on canvas (for walking animation)
@@ -145,7 +151,7 @@ namespace Bomberman.GameEngine.Graphics
       }
       else if (nextDir != null)
       {
-        Debug.WriteLine("[stop]: CONTINUE NEXT DIR");
+        // Debug.WriteLine("[stop]: CONTINUE NEXT DIR");
         bool sameDir = currDir == nextDir;
         currDir = nextDir;
         if (!sameDir) SwitchMoveImage();
@@ -153,7 +159,7 @@ namespace Bomberman.GameEngine.Graphics
       }
       else
       {
-        Debug.WriteLine("[stop]: CONTINUE TILL KEYUP");
+        // Debug.WriteLine("[stop]: CONTINUE TILL KEYUP");
       }
     }
     private void StopMove()

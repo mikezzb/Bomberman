@@ -14,6 +14,7 @@ namespace Bomberman.GameEngine.MapObjects
   {
     protected GridPosition position;
     public GridPosition Position { get => position; }
+    public IntPoint GridPosition { get => position.Position; }
     protected Sprite sprite;
     /// <summary>
     /// Do nothing constructor for inherited class to define their own
@@ -25,10 +26,18 @@ namespace Bomberman.GameEngine.MapObjects
       sprite = new Sprite(name, variant, defaultVariant, ref position, zIndex);
     }
     /// <summary>
+    /// Frame update
+    /// </summary>
+    public virtual void Update()
+    {
+
+    }
+    /// <summary>
     /// Dispose a map object in GUI, perform cleanup actions
     /// </summary>
     public virtual void Dispose()
     {
+      sprite.Dispose();
       return;
     }
   }

@@ -1,5 +1,6 @@
 ﻿using Bomberman.GameEngine.Enums;
 using Bomberman.GameEngine.MapObjects;
+using Bomberman.GameEngine.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,9 +21,11 @@ namespace Bomberman.GameEngine
     /// Key: index
     /// Value: a map object
     /// </summary>
+    public bool Started { get; private set; }
     private readonly Dictionary<int, MapObject> map = new();
     private readonly Dictionary<int, Powerup> powerups = new();
     private readonly Dictionary<int, Mob> mobs = new();
+    private readonly List<MapObject> updatableMapObjects = new();
     /// <summary>
     /// Key: position
     /// Value: if blocker exists on that position
@@ -38,7 +41,44 @@ namespace Bomberman.GameEngine
         return instance;
       }
     }
-    private Game() { }
+    private FrameTimer timer;
+    private Game() {
+      timer = new FrameTimer(Config.WalkFrameDuration, Config.WalkFrames, OnTimerTick);
+    }
+    protected virtual void OnTimerTick(int frameNum)
+    {
+      if (!Started) return;
+      // player mob collision
+      foreach(Mob mob in mobs.Values)
+      {
+        if (mob.OverlapsWith(player))
+        {
+          Debug.WriteLine("Overlap");
+          OnPlayerDead();
+        }
+      }
+      // update all updatable objects
+      foreach(MapObject obj in updatableMapObjects)
+      {
+        obj.Update();
+      }
+    }
+    protected virtual void OnPlayerDead()
+    {
+      Debug.WriteLine("player dead");
+      player.Dead();
+      GameOver();
+    }
+    protected virtual void GameOver()
+    {
+      Debug.WriteLine("game over");
+      timer.Stop();
+      foreach(MovableMapObject obj in mobs.Values)
+      {
+        obj.StopMoveNow();
+      }
+      Started = false;
+    }
     public IntPoint GetRandomPosition(bool isBlocker = true)
     {
       Random r = new();
@@ -90,7 +130,8 @@ namespace Bomberman.GameEngine
       InitPlayer();
       // init mobs
       InitMobs();
-
+      timer.Start();
+      Started = true;
     }
     public static HashSet<int> GetRandomNumbers(int count, int min, int max)
     {
@@ -107,7 +148,9 @@ namespace Bomberman.GameEngine
       }
       return numbers;
     }
-    protected virtual void InitMobs() {
+    protected virtual void InitMobs()
+    {
+      Debug.WriteLine("[INIT]: Mobs");
       List<IntPoint> positions = GetRandomPositions(Config.NumMobs, false);
       int count = 0;
       foreach(IntPoint pos in positions)
@@ -121,12 +164,14 @@ namespace Bomberman.GameEngine
     }
     protected virtual void InitPlayer()
     {
+      Debug.WriteLine("[INIT]: Player");
       player = new Player();
       player.BeforeNextMove += OnBeforeNextMove;
 
     }
     protected virtual void InitBricksAndBehinds()
     {
+      Debug.WriteLine("[INIT]: Bricks & Behinds");
       /*
        * random pick some bricks for hiding pu & key & door
        * - 0, 1 for key & door
@@ -173,13 +218,13 @@ namespace Bomberman.GameEngine
     /// <param name="mapDef"></param>
     protected virtual void InitMap(string? mapDef = null)
     {
+      Debug.WriteLine("[INIT]: Map");
       using (StringReader reader = new(mapDef ?? Config.Map))
       {
         string line;
         int i = 0, j = 0;
         while ((line = reader.ReadLine()) != null)
         {
-          Debug.WriteLine(line);
           foreach (char c in line)
           {
             bool isBlocking = false;
@@ -191,7 +236,6 @@ namespace Bomberman.GameEngine
                 map.Add(Point2Index(j, i), wall);
                 break;
               case (char)GameObject.Floor:
-                Debug.WriteLine("Floor");
                 Floor floor = new(j, i);
                 break;
             }
@@ -209,30 +253,40 @@ namespace Bomberman.GameEngine
     // player controls
     public void PlayerStartWalk(Direction dir)
     {
-      // move
-      player.Move(dir);
+      if (Started) player.Move(dir);
+    }
+    public void PlayerPlaceBomb()
+    {
+      bool success = player.PlaceBomb();
+      if (success)
+      {
+        IntPoint pos = player.Position.Position;
+        Bomb bomb = new Bomb(pos.X, pos.Y, OnBombExploded);
+        updatableMapObjects.Add(bomb);
+        blockers.Add(bomb.Position.Key);
+      }
+    }
+    public void OnBombExploded(object sender, EventArgs e)
+    {
+      Bomb bomb = (Bomb)sender;
+      player.RemoveBomb();
+      blockers.Remove(bomb.Position.Key);
     }
     public void OnBeforeNextMove(object sender, BeforeNextMoveEventArgs e)
     {
-      Debug.WriteLine($"{sender}: On before next move called");
-      Debug.WriteLine($"To: {e.To.X}-{e.To.Y}");
+      // Debug.WriteLine($"{sender}: On before next move called");
+      // Debug.WriteLine($"To: {e.To.X}-{e.To.Y}");
       // check can move (wall / brick / bomb)
       e.Cancel = !CanMoveTo(e.To);
       // if type is mob and blocked, call on intersection reached
       if (e.Cancel && sender.GetType() == typeof(Mob))
       {
         Mob mob = (Mob)sender;
-        Debug.WriteLine("IsMob");
-        HashSet<Direction>? movableDirs = new();
-        foreach (Direction dir in Config.Directions)
-        {
-          if (dir == mob.CurrDir) continue;
-          IntPoint postMovePos = mob.PostMovePosition(dir);
-          if (CanMoveTo(postMovePos)) movableDirs.Add(dir);
-        }
+        HashSet<Direction>? movableDirs = GetMovableDirectionsSet((MovableGridPosition)mob.Position, mob.CurrDir);
         mob.OnIntersectionReached(mob.CurrDir, movableDirs, e);
       }
     }
+    // helpers
     public bool CanMoveTo(IntPoint to)
     {
       // if blocked
@@ -242,20 +296,21 @@ namespace Bomberman.GameEngine
       if (to.X < 0 || to.X >= Config.Width || to.Y < 0 || to.Y >= Config.Height) return false;
       return true;
     }
-    public List<Direction> GetMovableDirectionsList(MovableGridPosition pos)
+    public List<Direction> GetMovableDirectionsList(MovableGridPosition pos, Direction? exceptDir = null)
     {
       List<Direction> directions = new List<Direction>();
       // IntPoint from = obj.GridPosition;
       foreach(Direction dir in Config.Directions)
       {
-        IntPoint to = pos.PostMovePosition(dir);
+        if (dir == exceptDir) continue;
+          IntPoint to = pos.PostMovePosition(dir);
         if (CanMoveTo(to)) directions.Add(dir);
       }
       return directions;
     }
-    public HashSet<Direction> GetMovableDirectionsSet(MovableGridPosition pos)
+    public HashSet<Direction> GetMovableDirectionsSet(MovableGridPosition pos, Direction? exceptDir = null)
     {
-      return new HashSet<Direction>(GetMovableDirectionsList(pos));
+      return new HashSet<Direction>(GetMovableDirectionsList(pos, exceptDir));
     }
     public void PlayerStopWalk(Direction dir)
     {

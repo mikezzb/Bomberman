@@ -7,6 +7,7 @@ namespace Bomberman.GameEngine
   public class MovableGridPosition : GridPosition
   {
     public MovableGridPosition(int x, int y) : base(x, y) { }
+    public MovableGridPosition(IntPoint p) : base(p.X, p.Y) { }
     public double OffsetX { get; private set; }
     public double OffsetY { get; private set; }
     public double PreciseX
@@ -25,8 +26,8 @@ namespace Bomberman.GameEngine
     {
       get => PreciseY * Config.ItemSize;
     }
-    public IntPoint GridPosition {  get => new IntPoint(GridX, GridY); }
-    public int GridX { get => (int)Math.Ceiling(PreciseX);  }
+    public override IntPoint Position { get => new (GridX, GridY); }
+    public int GridX { get => (int)Math.Ceiling(PreciseX); }
     public int GridY { get => (int)Math.Ceiling(PreciseY); }
     public int NextX { get; private set; }
     public int NextY { get; private set; }
@@ -49,7 +50,8 @@ namespace Bomberman.GameEngine
       if (translation.X != 0) ShiftX(translation.X);
       if (translation.Y != 0) ShiftY(translation.Y);
     }
-    public IntPoint PostMovePosition(Direction dir) {
+    public IntPoint PostMovePosition(Direction dir)
+    {
 
       Point translation = SolveMoveTranslation(dir, 1);
       // assume current walk is completed, so round up

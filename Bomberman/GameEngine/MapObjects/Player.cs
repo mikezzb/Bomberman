@@ -8,18 +8,37 @@ namespace Bomberman.GameEngine.MapObjects
   /// </summary>
   internal class Player : MovableMapObject
   {
+    private int numBombs = 1;
+    private int currBombs = 0;
     private static readonly Dictionary<string, int?> variant = new()
     {
-      { "default", 0 },
+      { "dead", null },
       { "up", 2 },
       { "down", 2 },
       { "left", 2 },
       { "right", 2 },
     };
-    internal Player(int x, int y) : base(x, y, "player", variant, "down") { }
+    internal Player(int x, int y) : base(x, y, "player", variant, "down", 1, 3) { }
     /// <summary>
     /// Init player at top left corner
     /// </summary>
-    internal Player() : base(1, 1, "player", variant, "down") { }
+    internal Player() : this(1, 1) { }
+    /// <summary>
+    /// Check if can place bomb, if can, increase count
+    /// </summary>
+    public bool CanPlaceBomb { get => 
+        currBombs < numBombs;
+       }
+    public bool PlaceBomb()
+    {
+      if (!CanPlaceBomb) return false;
+      currBombs++;
+      return true;
+    }
+    public void RemoveBomb()
+    {
+      currBombs--;
+    }
+
   }
 }
