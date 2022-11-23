@@ -25,7 +25,7 @@ namespace Bomberman.GameEngine
     private readonly Dictionary<int, MapObject> map = new();
     private readonly Dictionary<int, Powerup> powerups = new();
     private readonly Dictionary<int, Mob> mobs = new();
-    private readonly List<MapObject> updatableMapObjects = new();
+    private readonly List<IUpdatable> updatableMapObjects = new();
     /// <summary>
     /// Key: position
     /// Value: if blocker exists on that position
@@ -58,7 +58,7 @@ namespace Bomberman.GameEngine
         }
       }
       // update all updatable objects
-      foreach(MapObject obj in updatableMapObjects)
+      foreach(IUpdatable obj in updatableMapObjects)
       {
         obj.Update();
       }
@@ -78,6 +78,10 @@ namespace Bomberman.GameEngine
         obj.StopMoveNow();
       }
       Started = false;
+    }
+    private void AddUpdatableMapObject(IUpdatable obj)
+    {
+      updatableMapObjects.Add(obj);
     }
     public IntPoint GetRandomPosition(bool isBlocker = true)
     {
@@ -160,6 +164,7 @@ namespace Bomberman.GameEngine
         Mob mob = new(pos.X, pos.Y, type, directions);
         mob.BeforeNextMove += OnBeforeNextMove;
         mobs.Add(Point2Index(pos), mob);
+        AddUpdatableMapObject(mob);
       }
     }
     protected virtual void InitPlayer()
@@ -167,7 +172,7 @@ namespace Bomberman.GameEngine
       Debug.WriteLine("[INIT]: Player");
       player = new Player();
       player.BeforeNextMove += OnBeforeNextMove;
-
+      AddUpdatableMapObject(player);
     }
     protected virtual void InitBricksAndBehinds()
     {
@@ -283,7 +288,7 @@ namespace Bomberman.GameEngine
       {
         Mob mob = (Mob)sender;
         HashSet<Direction>? movableDirs = GetMovableDirectionsSet((MovableGridPosition)mob.Position, mob.CurrDir);
-        mob.OnIntersectionReached(mob.CurrDir, movableDirs, e);
+        mob.OnIntersectionReached((Direction)mob.CurrDir, movableDirs, e);
       }
     }
     // helpers
