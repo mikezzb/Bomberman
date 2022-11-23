@@ -12,10 +12,10 @@ namespace Bomberman.GameEngine.Graphics
     /// If movable, need update every frame, else only update image per some frames
     /// </summary>
     private readonly bool movable = false;
+    public int FrameNum { get; private set; }
     private bool running = false;
     private int imageFrames = 2;
     private int? currFrameNum;
-    private readonly MovableGridPosition movablePosition;
     /// <summary>
     /// key: variantName, value: frames of the variant
     /// </summary>
@@ -32,21 +32,23 @@ namespace Bomberman.GameEngine.Graphics
       this.movable = movable;
       // set default sprite
       animatedImages["default"] = animatedImages[defaultVariant ?? name];
-      movablePosition = (MovableGridPosition)position;
     }
     /// <summary>
     /// Update the frame image every 4 frames, update position every frame if movable
     /// </summary>
-    public void Update(int frameNum)
+    public void Update()
     {
       if (!running) return;
-      if (!movable)
+      FrameNum++;
+      if (FrameNum % 4 == 0)
       {
-        if (frameNum % 4 != 0) return;
-        currFrameNum += (currFrameNum) % imageFrames;
+        currFrameNum = (currFrameNum + 1) % imageFrames;
         UpdateImage();
-      }
-      DrawUpdate();
+        DrawUpdate();
+      } else if (movable)
+      {
+        DrawUpdate();
+      };
     }
     /// <summary>
     /// Override update image to support animated image update
@@ -77,6 +79,7 @@ namespace Bomberman.GameEngine.Graphics
     }
     public void StartAnimation()
     {
+      FrameNum = 0;
       running = true;
     }
     public void StopAnimation()
