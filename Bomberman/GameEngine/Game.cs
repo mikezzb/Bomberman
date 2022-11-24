@@ -22,55 +22,46 @@ namespace Bomberman.GameEngine
     /// Key: index
     /// Value: a map object
     /// </summary>
-    public bool Started { get; private set; }
+    public bool Started { get; protected set; }
     /// <summary>
     /// All visible stationary map objects
     /// <para>- When powerup hiding behind brick, only brick in map</para>
     /// </summary>
-    private readonly Dictionary<int, MapObject> map = new();
-    private readonly Dictionary<int, Powerup> powerups = new();
-    private readonly List<Bomb> bombs = new();
-    private readonly List<Mob> mobs = new();
-    private readonly List<IUpdatable> updatables = new();
+    protected readonly Dictionary<int, MapObject> map = new();
+    protected readonly Dictionary<int, Powerup> powerups = new();
+    protected readonly List<Bomb> bombs = new();
+    protected readonly List<Mob> mobs = new();
+    protected readonly List<IUpdatable> updatables = new();
     /// <summary>
     /// Key: position
     /// Value: if blocker exists on that position
     /// </summary>
-    private readonly HashSet<int> blockers = new();
-    private Player player;
-    private static Game? instance;
-    public static Game Instance
-    {
-      get
-      {
-        if (instance == null) instance = new Game();
-        return instance;
-      }
-    }
-    private FrameTimer timer;
-    private Game()
+    protected readonly HashSet<int> blockers = new();
+    protected Player player;
+    protected FrameTimer timer;
+    public Game()
     {
       timer = new FrameTimer(Config.WalkFrameDuration, Config.WalkFrames, OnTimerTick);
     }
-    private bool HasEntityAt<T>(int index)
+    protected bool HasEntityAt<T>(int index)
     {
       MapObject? obj;
       map.TryGetValue(index, out obj);
       return obj.GetType() == typeof(T);
     }
-    private MapObject? GetMapObjectAt(int index)
+    protected MapObject? GetMapObjectAt(int index)
     {
       MapObject? obj;
       map.TryGetValue(index, out obj);
       return obj;
     }
-    private MapObject? GetEntityAt<T>(int index)
+    protected MapObject? GetEntityAt<T>(int index)
     {
       MapObject? obj = GetMapObjectAt(index);
       return obj != null && obj.GetType() == typeof(T) ? obj : default;
     }
-    private bool HasPowerupAt(int index) => HasEntityAt<Powerup>(index);
-    private Brick? GetBrickAt(int index) => (Brick?)GetEntityAt<Brick>(index);
+    protected bool HasPowerupAt(int index) => HasEntityAt<Powerup>(index);
+    protected Brick? GetBrickAt(int index) => (Brick?)GetEntityAt<Brick>(index);
     protected virtual void OnTimerTick(int frameNum)
     {
       if (!Started) return;
@@ -79,7 +70,7 @@ namespace Bomberman.GameEngine
       {
         if (mobs[i].OverlapsWith(player))
         {
-          Debug.WriteLine("Overlap");
+          Debug.WriteLine("[DEAD]: mob collision");
           OnPlayerDead();
         }
       }
@@ -88,7 +79,8 @@ namespace Bomberman.GameEngine
       {
         Powerup powerup = powerups[player.Position.Index];
         powerups.Remove(player.Position.Index);
-        player.ConsumePowerup(powerup);
+        player.ApplyPowerup(powerup);
+        RemovePowerup(powerup);
       }
       // bomb collision
       for (int i = bombs.Count - 1; i >= 0; i--)
@@ -96,13 +88,13 @@ namespace Bomberman.GameEngine
         Bomb bomb = bombs[i];
         if (bomb.Explosing)
         {
-          Debug.WriteLine($"Explosion checking: {bomb.Position}");
-          foreach (Mob mob in mobs)
+          // Debug.WriteLine($"Explosion checking: {bomb.Position}");
+          for (int j = mobs.Count - 1; j >= 0; j--)
           {
-            if (bomb.IntersectsWith(mob))
+            if (bomb.IntersectsWith(mobs[j]))
             {
               Debug.WriteLine("Mob killed by bomb");
-              mob.Dead();
+              OnMobDead(mobs[j]);
             }
           }
           if (bomb.IntersectsWith(player))
@@ -135,17 +127,17 @@ namespace Bomberman.GameEngine
       }
       Started = false;
     }
-    private void AddUpdatableMapObject(IUpdatable obj)
+    protected void AddUpdatableMapObject(IUpdatable obj)
     {
       updatables.Add(obj);
     }
-    private void RemoveUpdatable(IUpdatable obj)
+    protected void RemoveUpdatable(IUpdatable obj)
     {
       updatables.Remove(obj);
     }
     public IntPoint GetRandomPosition(bool isBlocker = true, int minX = 1, int minY = 1)
     {
-      Random r = new();
+      Random r = Config.Rnd;
       // 1 & -1 is cuz boundary all walls
       int x, y;
       int key;
@@ -186,6 +178,12 @@ namespace Bomberman.GameEngine
     }
     public void InitGame()
     {
+      InitMapEntries();
+      timer.Start();
+      Started = true;
+    }
+    protected virtual void InitMapEntries()
+    {
       // init the stationary map (walls & floor)
       InitMap();
       // init bricks & their behinds
@@ -194,13 +192,11 @@ namespace Bomberman.GameEngine
       InitPlayer();
       // init mobs
       InitMobs();
-      timer.Start();
-      Started = true;
     }
     public static HashSet<int> GetRandomNumbers(int count, int min, int max)
     {
       HashSet<int> numbers = new();
-      Random r = new();
+      Random r = Config.Rnd;
       for (int i = 0; i < count; i++)
       {
         int num;
@@ -215,22 +211,25 @@ namespace Bomberman.GameEngine
     protected virtual void InitMobs()
     {
       Debug.WriteLine("[INIT]: Mobs");
-      List<IntPoint> positions = GetRandomPositions(Config.NumMobs, false, 7, 7);
+      List<IntPoint> positions = GetRandomPositions(Config.NumMobs, false, 10, 10);
       int count = 0;
       foreach (IntPoint pos in positions)
       {
-        List<Direction> directions = GetMovableDirectionsList(new MovableGridPosition(pos));
         MobType type = (++count > Config.NumStraightMob) ? MobType.RandomWalk : MobType.StraightWalk;
-        Mob mob = new(pos.X, pos.Y, type, directions);
-        mob.BeforeNextMove += OnBeforeNextMove;
-        mobs.Add(mob);
-        AddUpdatableMapObject(mob);
+        CreateMob(pos, type);
       }
     }
-    protected virtual void InitPlayer()
+    protected void CreateMob(IntPoint pos, MobType type)
+    {
+      List<Direction> directions = GetMovableDirectionsList(new MovableGridPosition(pos));
+      Mob mob = new(pos.X, pos.Y, type, directions);
+      mob.BeforeNextMove += OnBeforeNextMove;
+      AddMob(mob);
+    }
+    protected virtual void InitPlayer(int x = 1, int y = 1)
     {
       Debug.WriteLine("[INIT]: Player");
-      player = new Player();
+      player = new Player(x, y);
       player.BeforeNextMove += OnBeforeNextMove;
       AddUpdatableMapObject(player);
     }
@@ -248,10 +247,7 @@ namespace Bomberman.GameEngine
       {
         // blocker added here
         IntPoint pos = GetRandomPosition(true);
-        Brick brick = new Brick(pos.X, pos.Y);
-        Debug.WriteLine(pos);
-        int posIndex = Point2Index(pos);
-        map.Add(posIndex, brick);
+        CreateBrick(pos);
         // handle magic brick
         if (magicBricks.Contains(i))
         {
@@ -265,19 +261,36 @@ namespace Bomberman.GameEngine
           }
           else if (countMagicBricks < (2 + Config.NumBombNumPU))
           {
-            Powerup powerupBN = new(pos.X, pos.Y, PowerupType.BombNum);
-            powerups.Add(posIndex, powerupBN);
+            CreatePowerup(pos, PowerupType.BombNum);
           }
           else
           {
-            Powerup powerupBR = new(pos.X, pos.Y, PowerupType.BombRange);
-            powerups.Add(posIndex, powerupBR);
+            CreatePowerup(pos, PowerupType.BombRange);
           }
           countMagicBricks++;
         }
       }
     }
-    private void RemoveBrick(Brick brick)
+    protected void CreateBrick(IntPoint pos)
+    {
+      Brick brick = new Brick(pos.X, pos.Y);
+      int posIndex = Point2Index(pos);
+      map.Add(posIndex, brick);
+    }
+    protected void CreatePowerup(IntPoint pos, PowerupType type)
+    {
+      Powerup powerup = new(pos.X, pos.Y, type);
+      powerups.Add(pos.Index, powerup);
+    }
+    protected void CreateKey(IntPoint pos)
+    {
+
+    }
+    /// <summary>
+    /// Remove bricks from map and replace it with powerup behind (if any)
+    /// </summary>
+    /// <param name="brick"></param>
+    protected void RemoveBrick(Brick brick)
     {
       int idx = brick.Position.Index;
       brick.Remove();
@@ -285,20 +298,42 @@ namespace Bomberman.GameEngine
       // replace brick with powerup
       if (powerups.ContainsKey(idx))
       {
+        Debug.WriteLine($"Replace brick with powerup {idx}");
         map[idx] = powerups[idx];
       }
       else
       {
+        Debug.WriteLine($"No powerup behind brick at {idx}");
         map.Remove(idx);
       }
     }
-    private void RemovePowerup(Powerup powerup)
+    protected void OnMobDead(Mob mob)
+    {
+      RemoveMob(mob);
+    }
+    protected void AddMob(Mob mob)
+    {
+      mobs.Add(mob);
+      AddUpdatableMapObject(mob);
+    }
+    protected void RemoveMob(Mob mob)
+    {
+      mobs.Remove(mob);
+      RemoveUpdatable(mob);
+      mob.Remove();
+    }
+    protected void RemovePowerup(Powerup powerup)
     {
       int idx = powerup.Position.Index;
+      Debug.WriteLine($"Remove powerup {idx}");
       RemoveFromMap(idx, powerup, false, false, true);
       powerups.Remove(idx);
     }
-    private void RemoveBomb(Bomb bomb)
+    protected void AddBomb(Bomb bomb)
+    {
+
+    }
+    protected void RemoveBomb(Bomb bomb)
     {
       Debug.WriteLine($"Removing bomb");
       RemoveFromMap(bomb.Position.Index, bomb, false, true, false);
@@ -319,21 +354,25 @@ namespace Bomberman.GameEngine
         {
           foreach (char c in line)
           {
-            switch (c)
-            {
-              case (char)GameObject.Wall:
-                Wall wall = new(j, i);
-                AddToMap(wall, null, true, false);
-                break;
-              case (char)GameObject.Floor:
-                Floor floor = new(j, i);
-                break;
-            }
+            InitMapEntry(c, j, i);
             j++;
           }
           i++;
           j = 0;
         }
+      }
+    }
+    protected virtual void InitMapEntry(char c, int x, int y)
+    {
+      switch (c)
+      {
+        case (char)GameObject.Wall:
+          Wall wall = new(x, y);
+          AddToMap(wall, null, true, false);
+          break;
+        case (char)GameObject.Floor:
+          Floor floor = new(x, y);
+          break;
       }
     }
     // player controls
@@ -343,19 +382,26 @@ namespace Bomberman.GameEngine
     }
     public void PlayerPlaceBomb()
     {
-      bool success = player.PlaceBomb();
-      if (success)
+      bool validBombNum = player.CanPlaceBomb;
+      if (validBombNum)
       {
         IntPoint pos = player.Position;
-        // if already planted
-        if (GetMapObjectAt(pos.Index) != null) return;
-        Debug.WriteLine($"Plcae Bomb w/ range {player.BombRange}");
+        // if already planted at that position
+        if (GetMapObjectAt(pos.Index) != null)
+        {
+          Debug.WriteLine("[BOMB]: BLOCKED");
+          Debug.WriteLine(GetMapObjectAt(pos.Index));
+          return;
+        };
+        // plant
+        player.PlaceBomb();
         Bomb bomb = new(pos.X, pos.Y, player.BombRange, BombExplodeHandler, DelayedRemoveCallback);
+        Debug.WriteLine($"Plcae Bomb w/ range {player.BombRange} @ {pos.Index}");
         AddToMap(bomb, pos.Index, true, true);
         bombs.Add(bomb);
       }
     }
-    private void DelayedRemoveCallback(MapObject sender)
+    protected void DelayedRemoveCallback(MapObject sender)
     {
       Type type = sender.GetType();
       if (type == typeof(Bomb))
@@ -363,10 +409,15 @@ namespace Bomberman.GameEngine
         RemoveBomb((Bomb)sender);
       }
     }
-    private void AddToMap(MapObject obj, int? index = null, bool isBlocker = false, bool isUpdateble = false)
+    protected void AddToMap(MapObject obj, int? index = null, bool isBlocker = false, bool isUpdateble = false)
     {
       int idx = index ?? obj.Position.Index;
-      map.Add(idx, obj);
+      bool success = map.TryAdd(idx, obj);
+      if (!success)
+      {
+        Debug.WriteLine($"FAIL TO ADD, EXISTS @{GetMapObjectAt(idx)}");
+        throw new Exception();
+      }
       if (isBlocker)
       {
         blockers.Add(idx);
@@ -376,7 +427,7 @@ namespace Bomberman.GameEngine
         AddUpdatableMapObject((IUpdatable)obj);
       }
     }
-    private void RemoveFromMap(int index, MapObject? obj = null, bool isBlocker = false, bool isUpdateble = false, bool removeObj = false)
+    protected void RemoveFromMap(int index, MapObject? obj = null, bool isBlocker = false, bool isUpdateble = false, bool removeObj = false)
     {
       map.Remove(index);
       if (isBlocker) blockers.Remove(index);
@@ -389,12 +440,12 @@ namespace Bomberman.GameEngine
         };
       }
     }
-    private async void RemoveAfter(int index, int duratonInMs, MapObject? obj = null, bool isBlocker = false, bool isUpdateble = false, bool removeObj = false)
+    protected async void RemoveAfter(int index, int duratonInMs, MapObject? obj = null, bool isBlocker = false, bool isUpdateble = false, bool removeObj = false)
     {
       await Task.Delay(duratonInMs);
       RemoveFromMap(index, obj, isBlocker, isUpdateble, removeObj);
     }
-    private void BombExplodeHandler(object sender, EventArgs e)
+    protected void BombExplodeHandler(object sender, EventArgs e)
     {
       Debug.WriteLine("Exploded");
       Bomb bomb = (Bomb)sender;
@@ -436,6 +487,12 @@ namespace Bomberman.GameEngine
             {
               RemovePowerup((Powerup)obj);
             }
+            // if bomb, explode it
+            else if (objType == typeof(Bomb))
+            {
+              Debug.WriteLine($"Chain reaction: {obj}");
+              ((Bomb)obj).Explode();
+            }
           }
           Debug.WriteLine(to);
           // add as position of explosives
@@ -459,7 +516,7 @@ namespace Bomberman.GameEngine
       {
         Mob mob = (Mob)sender;
         HashSet<Direction>? movableDirs = GetMovableDirectionsSet((MovableGridPosition)mob.Position, mob.CurrDir);
-        mob.OnIntersectionReached((Direction)mob.CurrDir, movableDirs, e);
+        mob.OnIntersectionReached(movableDirs, e);
       }
     }
     // helpers
