@@ -8,11 +8,12 @@ namespace Bomberman.GameEngine.MapObjects
   /// Control the actions of a player (e.g. movement + drop bomb)
   /// - Not singleton for future multi-player
   /// </summary>
-  internal class Player : MovableMapObject
+  public class Player : MovableMapObject
   {
-    private int numBombs = 1;
+    private int numBombs = 3;
     private int currBombs = 0;
     public int BombRange { get; private set; }
+    public bool HasKey { get; private set; }
     private static readonly Dictionary<string, int?> variant = new()
     {
       { "dead", null },
@@ -21,14 +22,14 @@ namespace Bomberman.GameEngine.MapObjects
       { "left", 2 },
       { "right", 2 },
     };
-    internal Player(int x, int y) : base(x, y, "player", variant, "down", 1, 3)
+    public Player(int x, int y) : base(x, y, "player", variant, "down", 1, 3)
     {
       BombRange = 1;
     }
     /// <summary>
     /// Init player at top left corner
     /// </summary>
-    internal Player() : this(1, 1) { }
+    public Player() : this(1, 1) { }
     /// <summary>
     /// Check if can place bomb, if can, increase count
     /// </summary>
@@ -36,19 +37,24 @@ namespace Bomberman.GameEngine.MapObjects
     {
       get => currBombs < numBombs;
     }
-    public bool PlaceBomb()
+    public void PlaceBomb()
     {
-      if (!CanPlaceBomb) return false;
+      Debug.WriteLine($"[INCR] Place bomb {currBombs}/{numBombs} placed");
       currBombs++;
-      return true;
     }
     public void RemoveBomb()
     {
       currBombs--;
+      Debug.WriteLine($"[DESC] Remove bomb {currBombs}/{numBombs} placed");
     }
-    public void ConsumePowerup(Powerup powerup)
+
+    public void ApplyKey()
     {
-      Debug.WriteLine($"Apply pup: {powerup.Type}");
+      HasKey = true;
+    }
+    public void ApplyPowerup(Powerup powerup)
+    {
+      Debug.WriteLine($"Apply powerup: {powerup.Type}");
       switch (powerup.Type)
       {
         case PowerupType.Speed:
@@ -64,7 +70,6 @@ namespace Bomberman.GameEngine.MapObjects
           numBombs++;
           break;
       }
-      powerup.Remove();
     }
   }
 }
