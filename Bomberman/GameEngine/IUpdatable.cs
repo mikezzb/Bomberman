@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Bomberman.GameEngine
+﻿namespace Bomberman.GameEngine
 {
   /// <summary>
   /// Interface for any object requires to be updated for each frame

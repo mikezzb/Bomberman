@@ -9,16 +9,18 @@ namespace Bomberman.GameEngine
     public static readonly int Width = 31;
     public static readonly string ImageExt = ".png";
     public static readonly string Map = Resources.map;
-    public static readonly int WalkFrames = 8;
-    public static readonly int WalkFrameDuration = 30;
+    public static readonly int WalkFrames = 10;
+    public static readonly int WalkFrameDuration = 20;
     // set to 246 to test random generation
     public static readonly int NumStraightMob = 2;
     public static readonly int NumRandomMob = 2;
     public static readonly int NumMobs = NumStraightMob + NumRandomMob;
     public static readonly int NumBricks = 50;
-    public static readonly int NumExplosionPU = 5;
-    public static readonly int NumSpeedPU = 5;
-    public static readonly int NumPowerups = NumExplosionPU + NumSpeedPU;
+    public static readonly int NumBombNumPU = 23;
+    public static readonly int NumBombRangePU = 25;
+    public static readonly int NumPowerups = NumBombNumPU + NumBombRangePU;
+    public static readonly int NumFramesTillExplode = Utilities.Duration2FrameNum(2000);
+    public static readonly int NumFramesTillExplosionFinish = Utilities.Duration2FrameNum(3000);
     /// <summary>
     /// Time to walk 1 unit in ms
     /// </summary>
@@ -63,6 +65,12 @@ namespace Bomberman.GameEngine
     {
       StraightWalk,
       RandomWalk
+    }
+    public enum PowerupType
+    {
+      Speed,
+      BombNum,
+      BombRange
     }
   }
 }
