@@ -13,8 +13,9 @@ namespace Bomberman.GameEngine.MapObjects
   /// <item>Display (Image)</item>
   /// </list>
   /// </summary>
-  internal abstract class MovableMapObject : MapObject
+  internal abstract class MovableMapObject : MapObject, IUpdatable
   {
+    public int FrameNum { get; private set; }
     private double speed;
     protected readonly AnimatedSprite animatedSprite;
     protected readonly MovableGridPosition movablePosition;
@@ -38,20 +39,19 @@ namespace Bomberman.GameEngine.MapObjects
     private double WalkSize { get => (speed / Config.WalkFrames); }
     public IntPoint PostMovePosition(Direction dir)
     {
-      return movablePosition.PostMovePosition(dir);
+      return movablePosition.PostTranslatePosition(dir);
     }
     /// <summary>
     /// Move image on canvas (for walking animation)
     /// </summary>
-    /// <param name="frameNum"></param>
-    public override void Update(int frameNum)
+    public void Update()
     {
       // nothing to update if not moving
       if (currDir == null) return;
       // shift position & draw
       movablePosition.Move(currDir, WalkSize);
-      animatedSprite.Update(frameNum);
-      if (frameNum % Config.WalkFrames == 0) OnMoveEnded();
+      animatedSprite.Update();
+      if (++FrameNum % Config.WalkFrames == 0) OnMoveEnded();
     }
 
     /// <summary>
@@ -76,6 +76,7 @@ namespace Bomberman.GameEngine.MapObjects
       currDir = dir;
       SwitchMoveImage();
       animatedSprite.StartAnimation();
+      FrameNum = 0;
     }
     public void ResetMove(Direction dir)
     {
@@ -94,12 +95,6 @@ namespace Bomberman.GameEngine.MapObjects
         // Debug.WriteLine($"[{dir} UP]: STOP AFTER DONE");
       }
     }
-    public void StopMoveNow()
-    {
-      animatedSprite.StopAnimation();
-      currDir = null;
-      nextDir = null;
-    }
     public virtual void Dead()
     {
       StopMoveNow();
@@ -111,8 +106,8 @@ namespace Bomberman.GameEngine.MapObjects
     }
     private BeforeNextMoveEventArgs CanMove(Direction dir)
     {
-      IntPoint from = movablePosition.Position;
-      IntPoint to = movablePosition.PostMovePosition(dir);
+      IntPoint from = movablePosition;
+      IntPoint to = movablePosition.PostTranslatePosition(dir);
       BeforeNextMoveEventArgs e = new(from, to);
       InvokeBeforeNextMove(e);
       return e;
@@ -138,7 +133,7 @@ namespace Bomberman.GameEngine.MapObjects
       }
       else if (stopAfterMove)
       {
-        StopMove();
+        StopMoveNow();
       }
       else
       {
@@ -159,7 +154,7 @@ namespace Bomberman.GameEngine.MapObjects
         if (e.TurnDirection == null)
         {
           Debug.WriteLine("[stop]: CONTINUE CANCELLED");
-          StopMove();
+          StopMoveNow();
         }
       }
       else if (nextDir != null)
@@ -176,13 +171,14 @@ namespace Bomberman.GameEngine.MapObjects
       }
     }
     /// <summary>
-    /// Stop immediately, only call after a walk is finished
+    /// Stop immediately, only call after a walk is finished / force stopped
     /// </summary>
-    private void StopMove()
+    public void StopMoveNow()
     {
       Debug.WriteLine("[stop]: STOP");
-      currDir = null;
       animatedSprite.StopAnimation();
+      currDir = null;
+      nextDir = null;
     }
     /// <summary>
     /// Display image for the move direction
@@ -198,17 +194,17 @@ namespace Bomberman.GameEngine.MapObjects
     {
       this.speed = speed;
     }
-    protected void SpeedUp()
+    protected virtual void SpeedUp()
     {
       speed *= 1.2;
     }
-    protected void SpeedDown()
+    protected virtual void SpeedDown()
     {
       speed /= 1.2;
     }
-    public override void Dispose()
+    public override void Remove()
     {
-      base.Dispose();
+      base.Remove();
     }
   }
 }
