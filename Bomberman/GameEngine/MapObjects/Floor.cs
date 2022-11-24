@@ -2,6 +2,6 @@
 {
   internal class Floor : MapObject
   {
-    internal Floor(int x, int y) : base(x, y, "grass", null, null) { }
+    internal Floor(int x, int y) : base(x, y, "grass") { }
   }
 }
