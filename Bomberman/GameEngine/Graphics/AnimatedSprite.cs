@@ -13,7 +13,7 @@ namespace Bomberman.GameEngine.Graphics
     public int FrameNum { get; private set; }
     private bool running = false;
     private int imageFrames = 2;
-    private int? currFrameNum;
+    private int currFrameNum;
     /// <summary>
     /// key: variantName, value: frames of the variant
     /// </summary>
@@ -22,14 +22,12 @@ namespace Bomberman.GameEngine.Graphics
       string name,
       Dictionary<string, int?>? variant,
       string? defaultVariant,
-      ref GridPosition position,
+      GridPosition position,
       int zIndex = 1,
       bool movable = false
-      ) : base(name, variant, defaultVariant, ref position, zIndex)
+      ) : base(name, variant, defaultVariant, position, zIndex)
     {
       this.movable = movable;
-      // set default sprite
-      animatedImages["default"] = animatedImages[defaultVariant ?? name];
     }
     /// <summary>
     /// Update the frame image every 4 frames, update position every frame if movable
@@ -44,7 +42,7 @@ namespace Bomberman.GameEngine.Graphics
         UpdateImage();
         DrawUpdate();
       }
-      else if (movable)
+      else if (movable) 
       {
         DrawUpdate();
       };
@@ -54,24 +52,19 @@ namespace Bomberman.GameEngine.Graphics
     /// </summary>
     protected override void UpdateImage()
     {
-      if (currFrameNum == null) base.UpdateImage();
-      else if (animatedImages.ContainsKey(currVariant))
+      if (currVariant == null) return;
+      if (animatedImages.ContainsKey(currVariant))
       {
         imageBrush.ImageSource = animatedImages[currVariant][(int)currFrameNum];
       }
     }
     public override void SwitchImage(string variant)
     {
+      currFrameNum = 0;
       // if static image
-      if (images.ContainsKey(variant))
-      {
-        base.SwitchImage(variant);
-        currFrameNum = null;
-      }
-      else if (animatedImages.ContainsKey(variant))
+      if (animatedImages.ContainsKey(variant))
       {
         currVariant = variant;
-        currFrameNum = 0;
         UpdateImage();
         DrawUpdate();
       }
@@ -88,8 +81,9 @@ namespace Bomberman.GameEngine.Graphics
     /// <summary>
     /// Load both static & animated images
     /// </summary>
-    protected override void LoadImages()
+    protected override void LoadImages(string defaultVariant)
     {
+      currVariant = defaultVariant;
       // Mount all images
       foreach (KeyValuePair<string, int?> pair in variant)
       {
@@ -100,20 +94,33 @@ namespace Bomberman.GameEngine.Graphics
         else
         {
           List<BitmapImage> li = new List<BitmapImage>();
-          for (int frameNum = 1; frameNum <= pair.Value; frameNum++)
+          for (int frameNum = 0; frameNum <= pair.Value; frameNum++)
           {
             li.Add(GetImage(GetAnimatedImageUri(pair.Key, frameNum)));
           }
           animatedImages[pair.Key] = li;
         }
       }
+      // set default sprite
+      animatedImages["default"] = animatedImages[defaultVariant ?? name];
+      UpdateImage();
       DrawElement();
     }
     private Uri GetAnimatedImageUri(string variantName, int frameNum)
     {
-      return frameNum == 0 ?
-        GetImageUri(variantName) :
-        GetImageUriFromName($"{name}_{variantName}{frameNum}");
+      if (frameNum == 0) return GetImageUri(variantName);
+      string baseName = variantName == "default" ? defaultName : $"{name}_{variantName}";
+      return GetImageUriFromName($"{baseName}{frameNum}");
+    }
+    public override void Dispose()
+    {
+      StopAnimation();
+      base.Dispose();
+      foreach (List<BitmapImage> li in animatedImages.Values)
+      {
+        li.Clear();
+      }
+      animatedImages.Clear();
     }
   }
 }

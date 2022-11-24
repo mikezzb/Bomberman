@@ -25,7 +25,7 @@ namespace Bomberman.GameEngine.Graphics
       string name,
       Dictionary<string, int?>? variant,
       string? defaultVariant,
-      ref GridPosition position,
+      GridPosition position,
       int zIndex = 1
       )
     {
@@ -40,11 +40,7 @@ namespace Bomberman.GameEngine.Graphics
         Height = Config.ItemSize,
         Fill = imageBrush
       };
-      // set default sprite
-      images["default"] = GetImage(GetImageUri("default"));
-      currVariant = "default";
-      imageBrush.ImageSource = images[currVariant];
-      LoadImages();
+      LoadImages(defaultVariant);
     }
     protected virtual void UpdateImage()
     {
@@ -56,8 +52,12 @@ namespace Bomberman.GameEngine.Graphics
       UpdateImage();
       DrawUpdate();
     }
-    protected virtual void LoadImages()
+    protected virtual void LoadImages(string defaultVariant)
     {
+      // set default sprite
+      images["default"] = GetImage(GetImageUri("default"));
+      currVariant = "default";
+      imageBrush.ImageSource = images[currVariant];
       // Mount all variant images
       foreach (KeyValuePair<string, int?> pair in variant)
       {
@@ -87,9 +87,10 @@ namespace Bomberman.GameEngine.Graphics
       return new Uri("Resources/" + name + Config.ImageExt, UriKind.Relative);
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       Renderer.RemoveElement(canvasImage);
+      images.Clear();
     }
   }
 }
