@@ -1,12 +1,12 @@
-﻿using System;
-using Bomberman.GameEngine.Enums;
+﻿using Bomberman.GameEngine.Enums;
+using System;
 
 namespace Bomberman.GameEngine
 {
   public class IntPoint
   {
-    public int X { get; private set; }
-    public int Y { get; private set; }
+    public int X { get; protected set; }
+    public int Y { get; protected set; }
     public IntPoint(int x, int y)
     {
       X = x;
@@ -15,6 +15,10 @@ namespace Bomberman.GameEngine
     public override string ToString()
     {
       return $"({X},{Y})";
+    }
+    public int Index
+    {
+      get => X * Config.Width + Y;
     }
   }
   public class BeforeNextMoveEventArgs : EventArgs

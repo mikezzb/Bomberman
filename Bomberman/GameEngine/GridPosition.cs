@@ -1,16 +1,13 @@
-﻿using System.Windows;
-using System.Diagnostics;
+﻿using Bomberman.GameEngine.Enums;
+using System.Windows;
 namespace Bomberman.GameEngine
 {
-  public class GridPosition
+  public class GridPosition : IntPoint
   {
-    public int X { get; protected set; }
-    public int Y { get; protected set; }
     public Point CanvasPosition
     {
       get => new Point(CanvasX, CanvasY);
     }
-    public virtual IntPoint Position { get => new IntPoint(X, Y); }
     public virtual double CanvasX
     {
       get => X * Config.ItemSize;
@@ -31,21 +28,10 @@ namespace Bomberman.GameEngine
     {
       get => $"{X}_{Y}";
     }
-    public int Index
-    {
-      get => X * Config.Width + Y;
-    }
-    public GridPosition(int x, int y)
+    public GridPosition(int x, int y) : base(x, y) { }
+    public void Set(int x, int y)
     {
       X = x;
-      Y = y;
-    }
-    public void SetX(int x)
-    {
-      X = x;
-    }
-    public void SetY(int y)
-    {
       Y = y;
     }
     public bool IntersectsWith(GridPosition p)
@@ -56,6 +42,19 @@ namespace Bomberman.GameEngine
       // Debug.WriteLine($"{CanvasX},{CanvasY}");
       // Debug.WriteLine($"x: {xIntersect} y: {yIntersect}");
       return xIntersect && yIntersect;
+    }
+    public IntPoint PostTranslatePosition(Direction dir)
+    {
+      IntPoint translation = SolveDirectionTranslation(dir);
+      return AfterTranslation(translation);
+    }
+    public IntPoint AfterTranslation(IntPoint translation)
+    {
+      return new IntPoint(translation.X + X, translation.Y + Y);
+    }
+    public static IntPoint SolveDirectionTranslation(Direction dir)
+    {
+      return Constants.DirectionTranslation[dir];
     }
   }
 }
