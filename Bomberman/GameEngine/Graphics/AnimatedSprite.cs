@@ -1,7 +1,5 @@
-﻿using Bomberman.GameEngine.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows.Media.Imaging;
 
 namespace Bomberman.GameEngine.Graphics
@@ -45,7 +43,8 @@ namespace Bomberman.GameEngine.Graphics
         currFrameNum = (currFrameNum + 1) % imageFrames;
         UpdateImage();
         DrawUpdate();
-      } else if (movable)
+      }
+      else if (movable)
       {
         DrawUpdate();
       };
@@ -58,7 +57,7 @@ namespace Bomberman.GameEngine.Graphics
       if (currFrameNum == null) base.UpdateImage();
       else if (animatedImages.ContainsKey(currVariant))
       {
-         imageBrush.ImageSource = animatedImages[currVariant][(int)currFrameNum];
+        imageBrush.ImageSource = animatedImages[currVariant][(int)currFrameNum];
       }
     }
     public override void SwitchImage(string variant)

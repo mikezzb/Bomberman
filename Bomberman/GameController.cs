@@ -102,6 +102,7 @@ namespace Bomberman.GameEngine
       {
         case Key.Space:
           // plant bomb
+          game.PlayerPlaceBomb();
           break;
       }
     }
