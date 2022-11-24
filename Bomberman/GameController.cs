@@ -3,6 +3,7 @@ using Bomberman.GameEngine.Graphics;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -19,36 +20,38 @@ namespace Bomberman.GameEngine
     private DispatcherTimer dispatcherTimer;
     public event PropertyChangedEventHandler? PropertyChanged;
     private GameState? state;
-    private int secondsLeft = 180;
-    /// <summary>
-    /// Map of the game, load from text file
-    /// </summary>
-    private static readonly string map;
-    // UI Level Fields
+    private int secondsLeft = Config.GameDuration;
     public int SecondsLeft
     {
       get => secondsLeft; private set
       {
         if (value < 0)
         {
-          OnGameEnded();
+          OnGameEnded(GameEndType.Timeout);
           return;
         }
         secondsLeft = value;
+        GameBanner = $"TIME {SecondsLeft}";
         InvokePropertyChanged("TimeLeft");
       }
     }
+    private bool GameEnded => state == GameState.Ended;
     // UI Level Properties
-    public string TimeLeft
+    private string gameBanner;
+    public string GameBanner
     {
-      get
+      get => gameBanner;
+      private set
       {
-        return Utilities.ToMMSS(SecondsLeft);
+        gameBanner = value;
+        InvokePropertyChanged("Gamebanner");
       }
     }
+    public Visibility OverlayVisibility { get; private set; }
+    public string OverlayText { get; private set; }
     private GameController()
     {
-      game = Game.Instance;
+      OverlayVisibility = Visibility.Hidden;
     }
     // Singleton
     public static GameController Instance
@@ -66,30 +69,75 @@ namespace Bomberman.GameEngine
     }
     public void InitGame()
     {
+      SecondsLeft = Config.GameDuration;
+      game = new Game(OnGameEnded);
       // keydown event
-      MainWindow.Instance.KeyDown += KeyDownHandler;
-      MainWindow.Instance.KeyUp += KeyUpHandler;
+      if (state == null)
+      {
+        MainWindow.Instance.KeyDown += KeyDownHandler;
+        MainWindow.Instance.KeyUp += KeyUpHandler;
+      }
       // timer
       dispatcherTimer = new DispatcherTimer();
       dispatcherTimer.Tick += OnTick;
       dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
       dispatcherTimer.Start();
       // general
-      state = GameState.Started;
       game.InitGame();
     }
-    public void OnGameEnded()
+    public void StartGame()
     {
-      if (state == GameState.Ended) return; // If called already, return
-      MainWindow.Instance.KeyDown -= KeyDownHandler;
-      MainWindow.Instance.KeyUp -= KeyUpHandler;
+      state = GameState.Started;
+      HideOverlay();
+      game.StartGame();
+    }
+    public void NewGame()
+    {
+      Debug.WriteLine("Restart game");
+      Renderer.Clear();
+      InitGame();
+      StartGame();
+    }
+    public void OnGameEnded(GameEndType type)
+    {
+      if (GameEnded) return; // If called already, return
       state = GameState.Ended;
       dispatcherTimer.Stop();
+      // draw banner
+      string text = "";
+      switch (type)
+      {
+        case GameEndType.Cleared:
+          Debug.WriteLine("CLEARED");
+          text = "CLEARED - PRESS ENTER TO NEXT STAGE";
+          break;
+        case GameEndType.Dead:
+          Debug.WriteLine("Dead");
+          text = "PLAYER DEAD - PRESS ENTER TO RESTART";
+          break;
+        case GameEndType.Timeout:
+          Debug.WriteLine("Timeout");
+          text = "GAME OVER - PRESS ENTER TO RESTART";
+          break;
+      }
+      ShowOverlay(text);
       Debug.WriteLine("Game ended");
     }
     // UX Binding
     public void KeyDownHandler(object sender, KeyEventArgs e)
     {
+      Debug.WriteLine($"Key down {GameEnded}");
+      if (GameEnded)
+      {
+        switch (e.Key)
+        {
+          case Key.Enter:
+            // restart game
+            NewGame();
+            break;
+        }
+        return;
+      }
       // Debug.WriteLine("KeyDown" + e.Key);
       Direction? direction = Utilities.Key2Direction(e.Key);
       if (direction != null)
@@ -108,6 +156,7 @@ namespace Bomberman.GameEngine
     }
     public void KeyUpHandler(object sender, KeyEventArgs e)
     {
+      if (GameEnded) return;
       Direction? direction = Utilities.Key2Direction(e.Key);
       if (direction != null)
       {
@@ -115,15 +164,20 @@ namespace Bomberman.GameEngine
         game.PlayerStopWalk((Direction)direction);
         return;
       }
-      switch (e.Key)
-      {
-        case Key.Space:
-          // plant bomb
-          break;
-      }
     }
-
-    public void SetCanvas(Canvas cvs)
+    public void ShowOverlay(string text)
+    {
+      Debug.WriteLine($"Show overlay {text}");
+      OverlayVisibility = Visibility.Visible;
+      OverlayText = text;
+      GameBanner += $" - {text}";
+    }
+    public void HideOverlay()
+    {
+      OverlayVisibility = Visibility.Hidden;
+      OverlayText = "";
+    }
+    public void BindCanvas(Canvas cvs)
     {
       Renderer.Board = cvs;
     }

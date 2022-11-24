@@ -9,18 +9,102 @@
 
   <ItemGroup>
     <None Remove="data\map.txt" />
+    <None Remove="Resources\balloom_dead.png" />
+    <None Remove="Resources\balloom_left1.png" />
+    <None Remove="Resources\balloom_left2.png" />
+    <None Remove="Resources\balloom_left3.png" />
+    <None Remove="Resources\balloom_right1.png" />
+    <None Remove="Resources\balloom_right2.png" />
+    <None Remove="Resources\balloom_right3.png" />
+    <None Remove="Resources\bomb_exploded.png" />
+    <None Remove="Resources\bomb_exploded1.png" />
+    <None Remove="Resources\bomb_exploded2.png" />
+    <None Remove="Resources\bomb_original.png" />
+    <None Remove="Resources\bomb_original1.png" />
+    <None Remove="Resources\bomb_original2.png" />
+    <None Remove="Resources\brick.png" />
+    <None Remove="Resources\brick_exploded.png" />
+    <None Remove="Resources\brick_exploded1.png" />
+    <None Remove="Resources\brick_exploded2.png" />
+    <None Remove="Resources\doll_dead.png" />
+    <None Remove="Resources\doll_left1.png" />
+    <None Remove="Resources\doll_left2.png" />
+    <None Remove="Resources\doll_left3.png" />
+    <None Remove="Resources\doll_right1.png" />
+    <None Remove="Resources\doll_right2.png" />
+    <None Remove="Resources\doll_right3.png" />
+    <None Remove="Resources\explosion_horizontal.png" />
+    <None Remove="Resources\explosion_horizontal1.png" />
+    <None Remove="Resources\explosion_horizontal2.png" />
+    <None Remove="Resources\explosion_horizontal_left_last.png" />
+    <None Remove="Resources\explosion_horizontal_left_last1.png" />
+    <None Remove="Resources\explosion_horizontal_left_last2.png" />
+    <None Remove="Resources\explosion_horizontal_right_last.png" />
+    <None Remove="Resources\explosion_horizontal_right_last1.png" />
+    <None Remove="Resources\explosion_horizontal_right_last2.png" />
+    <None Remove="Resources\explosion_vertical.png" />
+    <None Remove="Resources\explosion_vertical1.png" />
+    <None Remove="Resources\explosion_vertical2.png" />
+    <None Remove="Resources\explosion_vertical_down_last.png" />
+    <None Remove="Resources\explosion_vertical_down_last1.png" />
+    <None Remove="Resources\explosion_vertical_down_last2.png" />
+    <None Remove="Resources\explosion_vertical_up_last.png" />
+    <None Remove="Resources\explosion_vertical_up_last1.png" />
+    <None Remove="Resources\explosion_vertical_up_last2.png" />
+    <None Remove="Resources\grass.png" />
+    <None Remove="Resources\key.png" />
+    <None Remove="Resources\kondoria_dead.png" />
+    <None Remove="Resources\kondoria_left1.png" />
+    <None Remove="Resources\kondoria_left2.png" />
+    <None Remove="Resources\kondoria_left3.png" />
+    <None Remove="Resources\kondoria_right1.png" />
+    <None Remove="Resources\kondoria_right2.png" />
+    <None Remove="Resources\kondoria_right3.png" />
+    <None Remove="Resources\logo.png" />
+    <None Remove="Resources\minvo_dead.png" />
+    <None Remove="Resources\minvo_left.png" />
+    <None Remove="Resources\minvo_left1.png" />
+    <None Remove="Resources\minvo_left2.png" />
+    <None Remove="Resources\minvo_right.png" />
+    <None Remove="Resources\minvo_right1.png" />
+    <None Remove="Resources\minvo_right2.png" />
+    <None Remove="Resources\mob_dead.png" />
+    <None Remove="Resources\mob_dead1.png" />
+    <None Remove="Resources\mob_dead2.png" />
+    <None Remove="Resources\oneal_dead.png" />
+    <None Remove="Resources\oneal_left.png" />
+    <None Remove="Resources\oneal_left1.png" />
+    <None Remove="Resources\oneal_left2.png" />
+    <None Remove="Resources\oneal_right.png" />
+    <None Remove="Resources\oneal_right1.png" />
+    <None Remove="Resources\oneal_right2.png" />
+    <None Remove="Resources\player_dead.png" />
+    <None Remove="Resources\player_dead1.png" />
+    <None Remove="Resources\player_dead2.png" />
+    <None Remove="Resources\player_down.png" />
+    <None Remove="Resources\player_down1.png" />
+    <None Remove="Resources\player_down2.png" />
+    <None Remove="Resources\player_left.png" />
+    <None Remove="Resources\player_left1.png" />
+    <None Remove="Resources\player_left2.png" />
+    <None Remove="Resources\player_right.png" />
+    <None Remove="Resources\player_right1.png" />
+    <None Remove="Resources\player_right2.png" />
+    <None Remove="Resources\player_up.png" />
+    <None Remove="Resources\player_up1.png" />
+    <None Remove="Resources\player_up2.png" />
+    <None Remove="Resources\portal.png" />
+    <None Remove="Resources\powerup_bombpass.png" />
+    <None Remove="Resources\powerup_bombs.png" />
+    <None Remove="Resources\powerup_detonator.png" />
+    <None Remove="Resources\powerup_flamepass.png" />
+    <None Remove="Resources\powerup_flames.png" />
+    <None Remove="Resources\powerup_speed.png" />
+    <None Remove="Resources\powerup_wallpass.png" />
+    <None Remove="Resources\wall.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit.Console" Version="3.16.0" />
-    <PackageReference Include="NUnit.ConsoleRunner" Version="3.16.0" />
-    <PackageReference Include="NUnit.Extension.VSProjectLoader" Version="3.9.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="data\map.txt" />
     <Content Include="Resources\balloom_dead.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -42,13 +126,13 @@
     <Content Include="Resources\balloom_right3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\bomb.png">
+    <Content Include="Resources\bomb_original.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\bomb_1.png">
+    <Content Include="Resources\bomb_original1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\bomb_2.png">
+    <Content Include="Resources\bomb_original2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\bomb_exploded.png">
@@ -138,16 +222,19 @@
     <Content Include="Resources\explosion_vertical_down_last2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\explosion_vertical_top_last.png">
+    <Content Include="Resources\explosion_vertical_up_last.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\explosion_vertical_top_last1.png">
+    <Content Include="Resources\explosion_vertical_up_last1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\explosion_vertical_top_last2.png">
+    <Content Include="Resources\explosion_vertical_up_last2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\grass.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\key.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\kondoria_dead.png">
@@ -171,7 +258,13 @@
     <Content Include="Resources\kondoria_right3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\minvo_dead.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\minvo_left.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\minvo_left1.png">
@@ -180,7 +273,7 @@
     <Content Include="Resources\minvo_left2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\minvo_left3.png">
+    <Content Include="Resources\minvo_right.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\minvo_right1.png">
@@ -189,7 +282,7 @@
     <Content Include="Resources\minvo_right2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\minvo_right3.png">
+    <Content Include="Resources\mob_dead.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\mob_dead1.png">
@@ -198,10 +291,10 @@
     <Content Include="Resources\mob_dead2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\mob_dead3.png">
+    <Content Include="Resources\oneal_dead.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\oneal_dead.png">
+    <Content Include="Resources\oneal_left.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\oneal_left1.png">
@@ -210,7 +303,7 @@
     <Content Include="Resources\oneal_left2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\oneal_left3.png">
+    <Content Include="Resources\oneal_right.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\oneal_right1.png">
@@ -219,16 +312,13 @@
     <Content Include="Resources\oneal_right2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\oneal_right3.png">
+    <Content Include="Resources\player_dead.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\player_dead1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\player_dead2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\player_dead3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\player_down.png">
@@ -294,6 +384,18 @@
     <Content Include="Resources\wall.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit.Console" Version="3.16.0" />
+    <PackageReference Include="NUnit.ConsoleRunner" Version="3.16.0" />
+    <PackageReference Include="NUnit.Extension.VSProjectLoader" Version="3.9.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="data\map.txt" />
   </ItemGroup>
 
   <ItemGroup>

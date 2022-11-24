@@ -5,12 +5,40 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Bomberman"
       mc:Ignorable="d" 
-      d:DesignHeight="650" d:DesignWidth="800"
       x:Name="gamePage"
-      Title="GamePage">
+      Height="615" Width="1253"
+      Title="GamePage"
+      >
+    <Page.Resources>
+        <Style x:Key="myTextStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="28" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontFamily" Value="Comic Sans MS" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
 
+        </Style>
+    </Page.Resources>
     <Grid x:Name="gameContainer">
-        <Label x:Name="gameTime" Content="{Binding TimeLeft, FallbackValue=0}"/>
-        <Canvas x:Name="gameBoard" Height="585" Width="675" Margin="0,55,125,10" />
+        <Grid Background="#b9b9b9" x:Name="gameStatesBar" Height="60" VerticalAlignment="Top">
+            <Grid.Resources>
+                <Style BasedOn="{StaticResource myTextStyle}" TargetType="{x:Type TextBlock}" />
+            </Grid.Resources>
+            <TextBlock x:Name="gameBanner" Text="{Binding GameBanner, FallbackValue=0}">
+                <TextBlock.Effect>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="1" Color="Black" />
+                </TextBlock.Effect>
+            </TextBlock>
+            
+        </Grid>
+        <Canvas x:Name="gameBoard" Margin="0,60,0,0" />
+        <TextBlock Visibility="{Binding OverlayVisibility, FallbackValue=Hidden}"
+            Text="{Binding OverlayText}"
+            Foreground="Black"
+            FontWeight="Bold"
+            FontSize="24"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"/>
     </Grid>
 </Page>
