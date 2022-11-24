@@ -71,7 +71,7 @@ namespace Bomberman.GameEngine.Graphics
     }
     public static void Clear()
     {
-      Board.Children.Clear(); 
+      Board.Children.Clear();
     }
   }
 }

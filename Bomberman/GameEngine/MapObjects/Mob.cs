@@ -8,8 +8,11 @@ namespace Bomberman.GameEngine.MapObjects
   /// Control the actions of a player (e.g. movement + drop bomb)
   /// - Not singleton for future multi-player
   /// </summary>
-  internal class Mob : MovableMapObject
+  public class Mob : MovableMapObject
   {
+    public static int StuckRetryInterval = Utilities.Duration2FrameNum(1000);
+    private bool stuck = false;
+    private Direction initDir;
     public MobType Type { get; private set; }
     public Direction OppositeDir { get => Utilities.GetOppositeDirection((Direction)CurrDir); }
     private static readonly Dictionary<string, int?> variant = new()
@@ -18,19 +21,41 @@ namespace Bomberman.GameEngine.MapObjects
       { "left", 2 },
       { "right", 2 },
     };
-    internal Mob(int x, int y, MobType type, List<Direction> movableDirs) : base(x, y, type == MobType.RandomWalk ? "oneal" : "minvo", variant, "left")
+    public Mob(int x, int y, MobType type, List<Direction> movableDirs) : base(x, y, type == MobType.RandomWalk ? "oneal" : "minvo", variant, "left")
     {
       Type = type;
       Debug.WriteLine($"Movable to {movableDirs.Count} dirs");
-      if (movableDirs.Count == 0) return;
-      Direction initDir = Utilities.GetRandomListElement(movableDirs);
+      if (movableDirs.Count == 0)
+      {
+        stuck = true;
+        initDir = Utilities.GetRandomDirection();
+        return;
+      };
+      initDir = Utilities.GetRandomListElement(movableDirs);
       Move(initDir);
+    }
+    public override void Update()
+    {
+      // if stuck, choose random dir to try again
+      if (stuck && FrameNum % StuckRetryInterval == 0)
+      {
+        initDir = Utilities.GetRandomDirection();
+        Debug.WriteLine($"[MOB_{Type}]: stuck retry | {CurrDir} | {initDir}");
+        Move(initDir);
+        if (CurrDir == initDir)
+        {
+          Debug.WriteLine($"[MOB_{Type}]: Unstucked at {CurrDir}");
+          stuck = false;
+        }
+      }
+      base.Update();
     }
     /// <summary>
     /// Callback after intersection reached
     /// </summary>
-    public virtual void OnIntersectionReached(Direction currDir, HashSet<Direction> movableDirs, BeforeNextMoveEventArgs e)
+    public virtual void OnIntersectionReached(HashSet<Direction> movableDirs, BeforeNextMoveEventArgs e)
     {
+      Direction currDir = CurrDir ?? initDir;
       // Debug.WriteLine($"On intersection: {currDir}");
       Direction oppositeDirection = Utilities.GetOppositeDirection(currDir);
       Direction? nextDir = null;
@@ -67,13 +92,9 @@ namespace Bomberman.GameEngine.MapObjects
       }
       else
       {
-        // Debug.WriteLine($"[MOB_{Type}]: Invalid move");
+        stuck = true;
+        Debug.WriteLine($"[MOB_{Type}]: Invalid move");
       }
-    }
-    public override void Dead()
-    {
-      base.Dead();
-      Remove();
     }
   }
 }
