@@ -36,7 +36,7 @@ namespace Bomberman.GameEngine.MapObjects
       movablePosition = (MovableGridPosition)Position;
       Debug.WriteLine($"Speed {this.speed} | {WalkSize}");
     }
-    private double WalkSize { get => (speed / Config.WalkFrames); }
+    private double WalkSize { get => (speed / Config.FramesPerCycle); }
     public IntPoint PostMovePosition(Direction dir)
     {
       return movablePosition.PostTranslatePosition(dir);
@@ -60,7 +60,7 @@ namespace Bomberman.GameEngine.MapObjects
       // shift position & draw
       movablePosition.Move(currDir, WalkSize);
       base.Update();
-      if (++FrameNum % Config.WalkFrames == 0) OnMoveEnded();
+      if (++FrameNum % Config.FramesPerCycle == 0) OnMoveEnded();
     }
 
     /// <summary>
