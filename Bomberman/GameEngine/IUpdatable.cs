@@ -3,7 +3,7 @@
   /// <summary>
   /// Interface for any object requires to be updated for each frame
   /// </summary>
-  internal interface IUpdatable
+  public interface IUpdatable
   {
     /// <summary>
     /// Each updatable required to have own frame num and responsible to sync itself

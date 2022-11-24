@@ -29,7 +29,6 @@ namespace Bomberman.GameEngine
     public static readonly HashSet<Direction> DirectionsSet = new(Directions);
     public static readonly Dictionary<PowerupType, string> PowerupTypeName = new()
     {
-      { PowerupType.Speed, "speed" },
       { PowerupType.BombNum, "bombs" },
       { PowerupType.BombRange, "flames" }
     };

@@ -1,4 +1,5 @@
 ﻿using Bomberman.GameEngine.Enums;
+using System.Diagnostics;
 using System.Windows;
 namespace Bomberman.GameEngine
 {
@@ -31,16 +32,14 @@ namespace Bomberman.GameEngine
     public GridPosition(int x, int y) : base(x, y) { }
     public void Set(int x, int y)
     {
+      Debug.WriteLine("test");
       X = x;
       Y = y;
     }
     public bool IntersectsWith(GridPosition p)
     {
-      bool xIntersect = p.CanvasX2 >= CanvasX && p.CanvasX <= CanvasX2;
-      bool yIntersect = p.CanvasY2 >= CanvasY && p.CanvasY <= CanvasY2;
-      // Debug.WriteLine($"[Intersection]: {p.CanvasX},{p.CanvasY}");
-      // Debug.WriteLine($"{CanvasX},{CanvasY}");
-      // Debug.WriteLine($"x: {xIntersect} y: {yIntersect}");
+      bool xIntersect = p.CanvasX2 > CanvasX && p.CanvasX < CanvasX2;
+      bool yIntersect = p.CanvasY2 > CanvasY && p.CanvasY < CanvasY2;
       return xIntersect && yIntersect;
     }
     public IntPoint PostTranslatePosition(Direction dir)

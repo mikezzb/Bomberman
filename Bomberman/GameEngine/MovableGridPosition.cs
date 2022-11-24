@@ -27,6 +27,7 @@ namespace Bomberman.GameEngine
       get => PreciseY * Config.ItemSize;
     }
     public IntPoint Position { get => new(GridX, GridY); }
+    public GameEngineRect Rect { get => new(PreciseX, PreciseY, 1, 1); }
     public int GridX { get => (int)Math.Ceiling(PreciseX); }
     public int GridY { get => (int)Math.Ceiling(PreciseY); }
     public int NextX { get; private set; }

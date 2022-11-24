@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Bomberman.GameEngine
 {
   public static class Config
   {
+    public static readonly Random Rnd = new Random();
+    public static readonly int GameDuration = 300;
     public static readonly int ItemSize = 40;
     public static readonly int Height = 13;
     public static readonly int Width = 31;
@@ -19,6 +22,8 @@ namespace Bomberman.GameEngine
     public static readonly int NumBombNumPU = 23;
     public static readonly int NumBombRangePU = 25;
     public static readonly int NumPowerups = NumBombNumPU + NumBombRangePU;
+    public static readonly int ImageUpdateFrameNum = 6;
+    public static readonly int RemoveDeadObjectAfterFrameNum = Utilities.Duration2FrameNum(1000);
     public static readonly int NumFramesTillExplode = Utilities.Duration2FrameNum(2000);
     public static readonly int NumFramesTillExplosionFinish = Utilities.Duration2FrameNum(3000);
     /// <summary>
@@ -47,6 +52,14 @@ namespace Bomberman.GameEngine
     {
       Wall = '#',
       Floor = ' ',
+      StraightMob = 's',
+      RandomMob = 'r',
+      Brick = '*',
+      Player = 'p',
+      BombNumPowerup = 'N',
+      BombRangePowerup = 'R',
+      Key = 'K',
+      Door = 'D'
     }
     public enum GameState
     {
@@ -71,6 +84,12 @@ namespace Bomberman.GameEngine
       Speed,
       BombNum,
       BombRange
+    }
+    public enum GameEndType
+    {
+      Cleared,
+      Dead,
+      Timeout,
     }
   }
 }
