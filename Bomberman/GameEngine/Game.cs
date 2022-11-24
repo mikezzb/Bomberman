@@ -37,11 +37,15 @@ namespace Bomberman.GameEngine
     /// Value: if blocker exists on that position
     /// </summary>
     protected readonly HashSet<int> blockers = new();
+    protected Key? key;
+    protected Door door;
     protected Player player;
     protected FrameTimer timer;
-    public Game()
+    protected Action<GameEndType> onGameEnded;
+    public Game(Action<GameEndType> onGameEnded)
     {
-      timer = new FrameTimer(Config.WalkFrameDuration, Config.WalkFrames, OnTimerTick);
+      timer = new FrameTimer(Config.FrameDuration, Config.FramesPerCycle, OnTimerTick);
+      this.onGameEnded = onGameEnded;
     }
     protected bool HasEntityAt<T>(int index)
     {
@@ -73,6 +77,17 @@ namespace Bomberman.GameEngine
           Debug.WriteLine("[DEAD]: mob collision");
           OnPlayerDead();
         }
+      }
+      // key collision
+      if (key != null && player.Position.Index == key.Position.Index)
+      {
+        player.ApplyKey();
+        RemoveKey();
+      }
+      // door collision
+      if (player.HasKey && player.Position.Index == door.Position.Index)
+      {
+        GameOver(GameEndType.Cleared);
       }
       // player powerup collision
       if (powerups.ContainsKey(player.Position.Index))
@@ -115,9 +130,9 @@ namespace Bomberman.GameEngine
     {
       Debug.WriteLine("player dead");
       player.Dead();
-      GameOver();
+      GameOver(GameEndType.Dead);
     }
-    protected virtual void GameOver()
+    protected virtual void GameOver(GameEndType type)
     {
       Debug.WriteLine("game over");
       timer.Stop();
@@ -126,6 +141,7 @@ namespace Bomberman.GameEngine
         obj.StopMoveNow();
       }
       Started = false;
+      onGameEnded.Invoke(type);
     }
     protected void AddUpdatableMapObject(IUpdatable obj)
     {
@@ -179,6 +195,9 @@ namespace Bomberman.GameEngine
     public void InitGame()
     {
       InitMapEntries();
+    }
+    public void StartGame()
+    {
       timer.Start();
       Started = true;
     }
@@ -253,11 +272,13 @@ namespace Bomberman.GameEngine
         {
           if (countMagicBricks == 0)
           {
-            // add key
+            // create key
+            CreateKey(pos);
           }
           else if (countMagicBricks == 1)
           {
-            // add door
+            // create door
+            CreateDoor(pos);
           }
           else if (countMagicBricks < (2 + Config.NumBombNumPU))
           {
@@ -284,7 +305,17 @@ namespace Bomberman.GameEngine
     }
     protected void CreateKey(IntPoint pos)
     {
+      key = new Key(pos.X, pos.Y);
+    }
+    protected void RemoveKey()
+    {
+      key?.Remove();
+      key = null;
+    }
 
+    protected void CreateDoor(IntPoint pos)
+    {
+      door = new Door(pos.X, pos.Y);
     }
     /// <summary>
     /// Remove bricks from map and replace it with powerup behind (if any)
