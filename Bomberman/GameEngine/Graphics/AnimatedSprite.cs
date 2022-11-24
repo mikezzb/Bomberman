@@ -36,13 +36,13 @@ namespace Bomberman.GameEngine.Graphics
     {
       if (!running) return;
       FrameNum++;
-      if (FrameNum % 4 == 0)
+      if (FrameNum % Config.ImageUpdateFrameNum == 0)
       {
         currFrameNum = (currFrameNum + 1) % imageFrames;
         UpdateImage();
         DrawUpdate();
       }
-      else if (movable) 
+      else if (movable)
       {
         DrawUpdate();
       };

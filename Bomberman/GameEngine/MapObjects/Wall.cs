@@ -1,7 +1,7 @@
 ﻿namespace Bomberman.GameEngine.MapObjects
 {
-  internal class Wall : MapObject
+  public class Wall : MapObject
   {
-    internal Wall(int x, int y) : base(x, y, "wall") { }
+    public Wall(int x, int y) : base(x, y, "wall") { }
   }
 }

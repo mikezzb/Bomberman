@@ -13,11 +13,11 @@ namespace Bomberman.GameEngine.MapObjects
   /// <item>Display (Image)</item>
   /// </list>
   /// </summary>
-  internal abstract class MovableMapObject : MapObject, IUpdatable
+  public abstract class MovableMapObject : AnimatedMapObject
   {
-    public int FrameNum { get; private set; }
+    protected int removeCountdown = Config.RemoveDeadObjectAfterFrameNum;
     private double speed;
-    protected readonly AnimatedSprite animatedSprite;
+    public bool IsDead { get; protected set; }
     protected readonly MovableGridPosition movablePosition;
     private Direction? currDir;
     private Direction? nextDir;
@@ -30,10 +30,10 @@ namespace Bomberman.GameEngine.MapObjects
     protected MovableMapObject(int x, int y, string name, Dictionary<string, int?>? variant, string? defaultVariant, double speed = 1.0, int zIndex = 2) : base()
     {
       this.speed = speed;
-      position = new MovableGridPosition(x, y);
-      sprite = new AnimatedSprite(name, variant, defaultVariant, ref position, zIndex, true);
+      Position = new MovableGridPosition(x, y);
+      sprite = new AnimatedSprite(name, variant, defaultVariant, Position, zIndex, true);
       animatedSprite = (AnimatedSprite)sprite;
-      movablePosition = (MovableGridPosition)position;
+      movablePosition = (MovableGridPosition)Position;
       Debug.WriteLine($"Speed {this.speed} | {WalkSize}");
     }
     private double WalkSize { get => (speed / Config.WalkFrames); }
@@ -44,13 +44,22 @@ namespace Bomberman.GameEngine.MapObjects
     /// <summary>
     /// Move image on canvas (for walking animation)
     /// </summary>
-    public void Update()
+    public override void Update()
     {
+      if (IsDead)
+      {
+        if (removeCountdown-- == 0)
+        {
+          Remove();
+        }
+        base.Update();
+        return;
+      }
       // nothing to update if not moving
       if (currDir == null) return;
       // shift position & draw
       movablePosition.Move(currDir, WalkSize);
-      animatedSprite.Update();
+      base.Update();
       if (++FrameNum % Config.WalkFrames == 0) OnMoveEnded();
     }
 
@@ -97,14 +106,15 @@ namespace Bomberman.GameEngine.MapObjects
     }
     public virtual void Dead()
     {
-      StopMoveNow();
+      IsDead = true;
+      // StopMoveNow();
       animatedSprite.SwitchImage("dead");
     }
     public virtual bool OverlapsWith(MovableMapObject obj)
     {
       return movablePosition.IntersectsWith(obj.movablePosition);
     }
-    private BeforeNextMoveEventArgs CanMove(Direction dir)
+    protected virtual BeforeNextMoveEventArgs CanMove(Direction dir)
     {
       IntPoint from = movablePosition;
       IntPoint to = movablePosition.PostTranslatePosition(dir);
@@ -202,8 +212,12 @@ namespace Bomberman.GameEngine.MapObjects
     {
       speed /= 1.2;
     }
+    /// <summary>
+    /// Remove from map, play dead animation before if havn't
+    /// </summary>
     public override void Remove()
     {
+      if (IsDead == false) Dead();
       base.Remove();
     }
   }

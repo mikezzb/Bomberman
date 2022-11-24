@@ -10,30 +10,25 @@ namespace Bomberman.GameEngine.MapObjects
   /// <item>Display (Image)</item>
   /// </list>
   /// </summary>
-  internal abstract class MapObject
+  public abstract class MapObject
   {
-    protected GridPosition position;
-    public GridPosition Position { get => position; }
+    public GridPosition Position { get; protected set; }
     protected Sprite sprite;
     /// <summary>
     /// Do nothing constructor for inherited class to define their own
     /// </summary>
     protected MapObject() { }
-    protected MapObject(int x, int y, string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1, bool animated = false)
+    protected MapObject(int x, int y)
     {
-      position = new GridPosition(x, y);
-      if (animated)
-      {
-        sprite = new AnimatedSprite(name, variant, defaultVariant, ref position, zIndex);
-      }
-      else
-      {
-        sprite = new Sprite(name, variant, defaultVariant, ref position, zIndex);
-      }
+      Position = new GridPosition(x, y);
+    }
+    protected MapObject(int x, int y, string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1) : this(x, y)
+    {
+      sprite = new Sprite(name, variant, defaultVariant, Position, zIndex);
     }
     public virtual void Remove()
     {
-      sprite.Dispose();
+      sprite?.Dispose();
     }
   }
 }

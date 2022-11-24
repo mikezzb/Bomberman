@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -34,13 +35,19 @@ namespace Bomberman.GameEngine.Graphics
     }
     public static void DrawRectangle(Brush brush, double x, double y)
     {
+      DrawRectangle(brush, x, y, 1, 1);
+    }
+    public static void DrawRectangle(Brush brush, double x, double y, double width, double height)
+    {
+      Debug.WriteLine("Render rect");
       Rectangle rect = new Rectangle
       {
-        Width = Config.ItemSize,
-        Height = Config.ItemSize,
+        Width = width * Config.ItemSize,
+        Height = height * Config.ItemSize,
         Fill = brush,
       };
-      DrawElement(rect, x, y);
+      Debug.WriteLine(rect);
+      DrawElement(rect, x * Config.ItemSize, y * Config.ItemSize, 5);
     }
     /// <summary>
     /// Set x and y of a canvas item
@@ -61,6 +68,10 @@ namespace Bomberman.GameEngine.Graphics
     public static void RemoveElement(UIElement el)
     {
       Board.Children.Remove(el);
+    }
+    public static void Clear()
+    {
+      Board.Children.Clear(); 
     }
   }
 }
