@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
+using Bomberman.GameEngine.Graphics;
 
 namespace Bomberman.GameEngine.MapObjects
 {
-  internal class Explosion : MapObject
+  internal class Explosion : AnimatedMapObject
   {
     public static Dictionary<string, int?> GetVariants(string variant) => new()
     {
       {
-        GetVariantName(variant),
+        variant,
         2
       }
     };
-    public static string GetVariantName(string variant) => $"explosion_{variant}";
-    internal Explosion(int x, int y, string variant) : base(x, y, GetVariantName(variant), GetVariants(variant), null, 1, true) { }
+    internal Explosion(int x, int y, string variant) : base(x, y, "explosion", GetVariants(variant), variant, 1) {
+      animatedSprite.StartAnimation();
+    }
   }
 }
