@@ -1,7 +1,13 @@
-﻿namespace Bomberman.GameEngine.MapObjects
+﻿using Bomberman.GameEngine.Enums;
+
+namespace Bomberman.GameEngine.MapObjects
 {
   internal class Powerup : MapObject
   {
-    internal Powerup(int x, int y, string variant) : base(x, y, $"powerup_{variant}", null, null, 2) { }
+    public PowerupType Type { get; private set; }
+    internal Powerup(int x, int y, PowerupType type) : base(x, y, $"powerup_{Constants.PowerupTypeName[type]}", null, null, 2)
+    {
+      Type = type;
+    }
   }
 }
