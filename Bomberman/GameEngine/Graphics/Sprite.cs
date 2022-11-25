@@ -84,7 +84,7 @@ namespace Bomberman.GameEngine.Graphics
     }
     protected static Uri GetImageUriFromName(string name)
     {
-      return new Uri("Resources/" + name + Config.ImageExt, UriKind.Relative);
+      return new Uri("Resources/images/" + name + Config.ImageExt, UriKind.Relative);
     }
 
     public virtual void Dispose()

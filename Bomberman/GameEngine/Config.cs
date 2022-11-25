@@ -1,19 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Bomberman.GameEngine
 {
   public static class Config
   {
     public static readonly Random Rnd = new Random();
-    public static readonly int NumStages = 2;
+    public static readonly int MobMinX = 0;
+    public static readonly int MobMinY = 0;
+    public static readonly int NumStages = 4;
     public static readonly int GameDuration = 300;
     public static readonly int ItemSize = 40;
     public static readonly int Height = 13;
     public static readonly int Width = 31;
     public static readonly string ImageExt = ".png";
     public static readonly string SoundExt = ".mp3";
-    public static readonly string Map = Resources.map;
     public static readonly int FramesPerCycle = 10;
     public static readonly int FrameDuration = 25;
     // set to 246 to test random generation

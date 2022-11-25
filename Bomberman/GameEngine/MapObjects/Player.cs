@@ -10,8 +10,8 @@ namespace Bomberman.GameEngine.MapObjects
   /// </summary>
   public class Player : MovableMapObject
   {
-    private int numBombs = 3;
-    private int currBombs = 0;
+    private int numBombs = 2;
+    private int placedBombs = 0;
     public int BombRange { get; private set; }
     public bool HasKey { get; private set; }
     private static readonly Dictionary<string, int?> variant = new()
@@ -35,17 +35,17 @@ namespace Bomberman.GameEngine.MapObjects
     /// </summary>
     public bool CanPlaceBomb
     {
-      get => currBombs < numBombs;
+      get => placedBombs < numBombs;
     }
     public void PlaceBomb()
     {
-      Debug.WriteLine($"[INCR] Place bomb {currBombs}/{numBombs} placed");
-      currBombs++;
+      Debug.WriteLine($"[INCR] Place bomb {placedBombs}/{numBombs} placed");
+      placedBombs++;
     }
     public void RemoveBomb()
     {
-      currBombs--;
-      Debug.WriteLine($"[DESC] Remove bomb {currBombs}/{numBombs} placed");
+      placedBombs--;
+      Debug.WriteLine($"[DESC] Remove bomb {placedBombs}/{numBombs} placed");
     }
 
     public void ApplyKey()

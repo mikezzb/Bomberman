@@ -71,10 +71,6 @@ namespace Bomberman.GameEngine.Graphics
       {
         base.SwitchImage(variant);
       }
-      else
-      {
-        Debug.WriteLine($"No variant {variant}");
-      }
     }
     public void StartAnimation()
     {

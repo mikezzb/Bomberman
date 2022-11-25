@@ -31,6 +31,7 @@ namespace Bomberman.GameEngine
     protected readonly Dictionary<int, Powerup> powerups = new();
     protected readonly List<Bomb> bombs = new();
     protected readonly List<Mob> mobs = new();
+    protected readonly List<MapObject> backgrounds = new();
     protected readonly List<IUpdatable> updatables = new();
     private readonly GameSoundPlayer sp;
     /// <summary>
@@ -161,8 +162,8 @@ namespace Bomberman.GameEngine
       int key;
       do
       {
-        x = r.Next(1, Config.Width - 1);
-        y = r.Next(1, Config.Height - 1);
+        x = r.Next(minX, Config.Width - 1);
+        y = r.Next(minY, Config.Height - 1);
         key = Point2Index(x, y);
       } while (
         blockers.Contains(key) ||
@@ -186,7 +187,7 @@ namespace Bomberman.GameEngine
         int idx;
         do
         {
-          pos = GetRandomPosition(isBlocker);
+          pos = GetRandomPosition(isBlocker, minX, minY);
           idx = Point2Index(pos);
         } while (generated.Contains(idx));
         positions.Add(pos);
@@ -197,6 +198,7 @@ namespace Bomberman.GameEngine
     public void InitGame()
     {
       InitMapEntries();
+      InitMobsMovement();
     }
     public void StartGame()
     {
@@ -233,7 +235,7 @@ namespace Bomberman.GameEngine
     protected virtual void InitMobs()
     {
       Debug.WriteLine("[INIT]: Mobs");
-      List<IntPoint> positions = GetRandomPositions(Config.NumMobs, false, 10, 10);
+      List<IntPoint> positions = GetRandomPositions(Config.NumMobs, false, Config.MobMinX, Config.MobMinY);
       int count = 0;
       foreach (IntPoint pos in positions)
       {
@@ -241,10 +243,20 @@ namespace Bomberman.GameEngine
         CreateMob(pos, type);
       }
     }
-    protected void CreateMob(IntPoint pos, MobType type)
+    /// <summary>
+    /// After map is initiated, make mobs movable (pick a movable direction)
+    /// </summary>
+    protected virtual void InitMobsMovement()
     {
-      List<Direction> directions = GetMovableDirectionsList(new MovableGridPosition(pos));
-      Mob mob = new(pos.X, pos.Y, type, directions);
+      foreach(Mob mob in mobs)
+      {
+        List<Direction> directions = GetMovableDirectionsList(mob.MovablePosition);
+        mob.InitMovement(directions);
+      }
+    }
+    protected virtual void CreateMob(IntPoint pos, MobType type)
+    {
+      Mob mob = new(pos.X, pos.Y, type);
       mob.BeforeNextMove += OnBeforeNextMove;
       AddMob(mob);
     }
@@ -299,7 +311,7 @@ namespace Bomberman.GameEngine
     {
       Brick brick = new Brick(pos.X, pos.Y);
       int posIndex = Point2Index(pos);
-      map.Add(posIndex, brick);
+      AddToMap(brick, posIndex, true, false);
     }
     protected void CreatePowerup(IntPoint pos, PowerupType type)
     {
@@ -315,7 +327,6 @@ namespace Bomberman.GameEngine
       key?.Remove();
       key = null;
     }
-
     protected void CreateDoor(IntPoint pos)
     {
       door = new Door(pos.X, pos.Y);
@@ -363,9 +374,12 @@ namespace Bomberman.GameEngine
       RemoveFromMap(idx, powerup, false, false, true);
       powerups.Remove(idx);
     }
-    protected void AddBomb(Bomb bomb)
+    protected void CreateBomb(IntPoint pos)
     {
-
+      Bomb bomb = new(pos.X, pos.Y, player.BombRange, BombExplodeHandler, DelayedRemoveCallback);
+      Debug.WriteLine($"Plcae Bomb w/ range {player.BombRange} @ {pos.Index}");
+      AddToMap(bomb, pos.Index, true, true);
+      bombs.Add(bomb);
     }
     protected void RemoveBomb(Bomb bomb)
     {
@@ -380,7 +394,7 @@ namespace Bomberman.GameEngine
     protected virtual void InitMap(string? mapDef = null)
     {
       Debug.WriteLine("[INIT]: Map");
-      using (StringReader reader = new(mapDef ?? Config.Map))
+      using (StringReader reader = new(mapDef ?? Constants.Map))
       {
         string line;
         int i = 0, j = 0;
@@ -406,6 +420,7 @@ namespace Bomberman.GameEngine
           break;
         case (char)GameObject.Floor:
           Floor floor = new(x, y);
+          backgrounds.Add(floor);
           break;
       }
     }
@@ -429,10 +444,7 @@ namespace Bomberman.GameEngine
         };
         // plant
         player.PlaceBomb();
-        Bomb bomb = new(pos.X, pos.Y, player.BombRange, BombExplodeHandler, DelayedRemoveCallback);
-        Debug.WriteLine($"Plcae Bomb w/ range {player.BombRange} @ {pos.Index}");
-        AddToMap(bomb, pos.Index, true, true);
-        bombs.Add(bomb);
+        CreateBomb(pos);
       }
     }
     protected void DelayedRemoveCallback(MapObject sender)

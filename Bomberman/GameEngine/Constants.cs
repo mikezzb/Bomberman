@@ -5,6 +5,13 @@ namespace Bomberman.GameEngine
 {
   public static class Constants
   {
+    public static readonly string Map = Resources.map;
+    public static readonly string[] StagesMap = new string[] {
+      Resources.stage1,
+      Resources.stage2,
+      Resources.stage3,
+      Resources.stage4,
+    };
     public static readonly Dictionary<Direction, string> DirectionName = new()
     {
       { Direction.Up, "up" },
