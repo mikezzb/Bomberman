@@ -6,6 +6,7 @@ namespace Bomberman.GameEngine
   public static class Config
   {
     public static readonly Random Rnd = new Random();
+    public static readonly int NumStages = 2;
     public static readonly int GameDuration = 300;
     public static readonly int ItemSize = 40;
     public static readonly int Height = 13;

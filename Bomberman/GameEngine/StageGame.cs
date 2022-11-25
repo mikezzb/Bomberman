@@ -7,9 +7,9 @@ namespace Bomberman.GameEngine
   /// <summary>
   /// More map definitions
   /// </summary>
-  public class DefinitiveGame : Game
+  public class StageGame : Game
   {
-    public DefinitiveGame(Action<GameEndType> onGameEnded) : base(onGameEnded) { }
+    public StageGame(int stageNum, Action<GameEndType> onGameEnded) : base(onGameEnded) { }
     protected override void InitMapEntries()
     {
       InitMap();

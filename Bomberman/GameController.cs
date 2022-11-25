@@ -21,6 +21,7 @@ namespace Bomberman.GameEngine
     private DispatcherTimer dispatcherTimer;
     public event PropertyChangedEventHandler? PropertyChanged;
     private GameState? state;
+    private GameContext store;
     private readonly GameSoundPlayer sp;
     private int secondsLeft = Config.GameDuration;
     public int SecondsLeft
@@ -55,6 +56,7 @@ namespace Bomberman.GameEngine
     {
       OverlayVisibility = Visibility.Hidden;
       sp = GameSoundPlayer.Instance;
+      store = GameContext.Instance;
     }
     // Singleton
     public static GameController Instance
@@ -70,16 +72,27 @@ namespace Bomberman.GameEngine
     {
       SecondsLeft--;
     }
-    public void StartStage(int stage = 1)
+    public void StartStage()
     {
+      Debug.WriteLine($"Start Stage #{store.StageNum}");
       sp.PlaySound(GameSound.StageStart);
       InitGame();
       StartGame();
     }
+    /// <summary>
+    /// Game factory
+    /// </summary>
+    /// <param name="stageNum"></param>
+    /// <returns></returns>
+    private Game CreateGame(int stageNum)
+    {
+      if (stageNum == 0) return new Game(OnGameEnded);
+      return new StageGame(stageNum, OnGameEnded);
+    }
     private void InitGame()
     {
       SecondsLeft = Config.GameDuration;
-      game = new Game(OnGameEnded);
+      game = CreateGame(store.StageNum);
       // keydown event
       if (state == null)
       {

@@ -16,6 +16,7 @@
             <Setter Property="Foreground" Value="White" />
             <Setter Property="FontFamily" Value="Comic Sans MS" />
             <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -28,9 +29,22 @@
         </Style>
     </Page.Resources>
     <Grid>
-        <Button Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Center" Margin="0,464,0,0" VerticalAlignment="Top">
-            <Hyperlink Foreground="White" TextDecorations="" NavigateUri="GamePage.xaml" x:Name="StartButton">START</Hyperlink>
+        <Button Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="476,465,0,0" VerticalAlignment="Top">
+            <Hyperlink Foreground="White" TextDecorations="" NavigateUri="GamePage.xaml" x:Name="StartButton">🞂 START</Hyperlink>
         </Button>
+        <Grid>
+            <Button x:Name="StageIncrBtn" Click="StageIncrBtn_Click" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="675,429,0,0" VerticalAlignment="Top">
+                🞁
+            </Button>
+            <TextBlock Style="{StaticResource MyTextStyle}" x:Name="stageText" Text="{Binding StageText, FallbackValue=STAGE 0}" Margin="641,471,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <TextBlock.Effect>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="1" Color="Black" />
+                </TextBlock.Effect>
+            </TextBlock>
+            <Button x:Name="StageDescBtn" Click="StageDescBtn_Click" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="675,507,0,0" VerticalAlignment="Top">
+                🞃
+            </Button>
+        </Grid>
         <Image Margin="286,82,287,229" Source="/Resources/logo.png" Stretch="Fill"/>
     </Grid>
 </Page>

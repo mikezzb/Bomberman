@@ -9,23 +9,12 @@
       Height="615" Width="1253"
       Title="GamePage"
       >
-    <Page.Resources>
-        <Style x:Key="myTextStyle" TargetType="{x:Type TextBlock}">
-            <Setter Property="FontSize" Value="28" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontFamily" Value="Comic Sans MS" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="HorizontalAlignment" Value="Center" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-
-        </Style>
-    </Page.Resources>
     <Grid x:Name="gameContainer">
         <Grid Background="#b9b9b9" x:Name="gameStatesBar" Height="60" VerticalAlignment="Top">
             <Grid.Resources>
-                <Style BasedOn="{StaticResource myTextStyle}" TargetType="{x:Type TextBlock}" />
+                <Style BasedOn="{StaticResource MyTextStyle}" TargetType="{x:Type TextBlock}" />
             </Grid.Resources>
-            <TextBlock x:Name="gameStateText" Text="{Binding GameStateText, FallbackValue=0}">
+            <TextBlock x:Name="gameStateText" Text="{Binding GameStateText, FallbackValue=TIME 300}">
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="1" BlurRadius="1" Color="Black" />
                 </TextBlock.Effect>
