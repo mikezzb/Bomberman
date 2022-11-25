@@ -1,6 +1,7 @@
 ﻿using Bomberman.GameEngine.Enums;
 using Bomberman.GameEngine.MapObjects;
 using System;
+using System.Collections.Generic;
 
 namespace Bomberman.GameEngine
 {
@@ -9,29 +10,63 @@ namespace Bomberman.GameEngine
   /// </summary>
   public class StageGame : Game
   {
-    public StageGame(int stageNum, Action<GameEndType> onGameEnded) : base(onGameEnded) { }
+    private readonly int stageNum;
+    public StageGame(int stageNum, Action<GameEndType> onGameEnded) : base(onGameEnded) {
+      this.stageNum = stageNum;
+    }
     protected override void InitMapEntries()
     {
-      InitMap();
+      InitMap(Constants.StagesMap[stageNum - 1]);
     }
     protected override void InitMapEntry(char c, int x, int y)
     {
-      base.InitMapEntry(c, x, y);
-      // Add more init
-      bool addFloor = false;
+      bool addFloor = true;
+      bool addBrick = false;
+      IntPoint pos = new(x, y);
       switch (c)
       {
-        case (char)GameObject.StraightMob:
+        case (char)GameObject.Wall:
           Wall wall = new(x, y);
           AddToMap(wall, null, true, false);
+          addFloor = false;
           break;
-        case (char)GameObject.Floor:
-          Floor floor = new(x, y);
+        case (char)GameObject.StraightMob:
+          CreateMob(pos, MobType.StraightWalk);
+          break;
+        case (char)GameObject.RandomMob:
+          CreateMob(pos, MobType.RandomWalk);
+          break;
+        case (char)GameObject.Player:
+          InitPlayer(x, y);
+          break;
+        case (char)GameObject.Brick:
+          addBrick = true;
+          break;
+        case (char)GameObject.BombNumPowerup:
+          CreatePowerup(pos, PowerupType.BombNum);
+          addBrick = true;
+          break;
+        case (char)GameObject.BombRangePowerup:
+          CreatePowerup(pos, PowerupType.BombRange);
+          addBrick = true;
+          break;
+        case (char)GameObject.Key:
+          CreateKey(pos);
+          addBrick = true;
+          break;
+        case (char)GameObject.Door:
+          CreateDoor(pos);
+          addBrick = true;
           break;
       }
       if (addFloor)
       {
         Floor floor = new(x, y);
+        backgrounds.Add(floor);
+      }
+      if (addBrick)
+      {
+        CreateBrick(pos);
       }
     }
   }
