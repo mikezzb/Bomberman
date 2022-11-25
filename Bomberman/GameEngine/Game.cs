@@ -4,6 +4,7 @@ using Bomberman.GameEngine.MapObjects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Windows.Threading;
 using System.IO;
 
 namespace Bomberman.GameEngine
@@ -32,12 +33,14 @@ namespace Bomberman.GameEngine
     /// </summary>
     protected readonly HashSet<int> blockers = new();
     protected Player player;
-    protected FrameTimer timer;
+    protected DispatcherTimer timer;
     protected Action<GameEndType> onGameEnded;
     protected int timeoutCountdown = Config.NumFramesTillTimeout;
     public Game(Action<GameEndType> onGameEnded)
     {
-      timer = new FrameTimer(Config.FrameDuration, Config.FramesPerCycle, OnTimerTick);
+      timer = new();
+      timer.Tick += OnTimerTick;
+      timer.Interval = new TimeSpan(0, 0, 0, 0, Config.FrameDuration);
       this.onGameEnded = onGameEnded;
       sp = GameSoundPlayer.Instance;
     }
@@ -412,7 +415,7 @@ namespace Bomberman.GameEngine
     }
     protected bool HasPowerupAt(int index) => HasEntityAt<Powerup>(index);
     protected Brick? GetBrickAt(int index) => (Brick?)GetEntityAt<Brick>(index);
-    protected virtual void OnTimerTick(int frameNum)
+    protected virtual void OnTimerTick(object sender, EventArgs e)
     {
       if (!Started) return;
       // timeout check
