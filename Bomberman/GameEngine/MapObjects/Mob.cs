@@ -33,6 +33,7 @@ namespace Bomberman.GameEngine.MapObjects
       };
       initDir = Utilities.GetRandomListElement(movableDirs);
       Move(initDir);
+      animatedSprite.SwitchImage("dead");
     }
     public override void Update()
     {

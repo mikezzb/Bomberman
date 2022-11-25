@@ -32,6 +32,7 @@ namespace Bomberman.GameEngine
     protected readonly List<Bomb> bombs = new();
     protected readonly List<Mob> mobs = new();
     protected readonly List<IUpdatable> updatables = new();
+    private readonly GameSoundPlayer sp;
     /// <summary>
     /// Key: position
     /// Value: if blocker exists on that position
@@ -46,6 +47,7 @@ namespace Bomberman.GameEngine
     {
       timer = new FrameTimer(Config.FrameDuration, Config.FramesPerCycle, OnTimerTick);
       this.onGameEnded = onGameEnded;
+      sp = GameSoundPlayer.Instance;
     }
     protected bool HasEntityAt<T>(int index)
     {
@@ -198,6 +200,7 @@ namespace Bomberman.GameEngine
     }
     public void StartGame()
     {
+      sp.PlaySound(GameSound.Bgm);
       timer.Start();
       Started = true;
     }

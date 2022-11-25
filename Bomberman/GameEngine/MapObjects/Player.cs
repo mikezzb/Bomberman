@@ -16,7 +16,7 @@ namespace Bomberman.GameEngine.MapObjects
     public bool HasKey { get; private set; }
     private static readonly Dictionary<string, int?> variant = new()
     {
-      { "dead", null },
+      { "dead", 2 },
       { "up", 2 },
       { "down", 2 },
       { "left", 2 },

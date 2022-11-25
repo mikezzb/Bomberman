@@ -161,6 +161,7 @@ namespace Bomberman.GameEngine.MapObjects
       if (e.Cancel)
       {
         nextDir = null;
+        // if turn direction, then cancel is not move but not stop move
         if (e.TurnDirection == null)
         {
           Debug.WriteLine("[stop]: CONTINUE CANCELLED");
@@ -217,7 +218,13 @@ namespace Bomberman.GameEngine.MapObjects
     /// </summary>
     public override void Remove()
     {
-      if (IsDead == false) Dead();
+      /*
+      if (IsDead == false)
+      {
+        Dead();
+        return;
+      }
+      */
       base.Remove();
     }
   }

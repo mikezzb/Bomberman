@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 
@@ -7,9 +8,9 @@ namespace Bomberman.GameEngine.Graphics
   public class AnimatedSprite : Sprite, IUpdatable
   {
     /// <summary>
-    /// If movable, need update every frame, else only update image per some frames
+    /// If moving, need update every frame, else only update image per some frames
     /// </summary>
-    private readonly bool movable = false;
+    private readonly bool drawEveryFrame = false;
     public int FrameNum { get; private set; }
     private bool running = false;
     private int imageFrames = 2;
@@ -24,13 +25,13 @@ namespace Bomberman.GameEngine.Graphics
       string? defaultVariant,
       GridPosition position,
       int zIndex = 1,
-      bool movable = false
+      bool drawEveryFrame = false
       ) : base(name, variant, defaultVariant, position, zIndex)
     {
-      this.movable = movable;
+      this.drawEveryFrame = drawEveryFrame;
     }
     /// <summary>
-    /// Update the frame image every 4 frames, update position every frame if movable
+    /// Update the frame image every 4 frames, update position every frame if drawEveryFrame
     /// </summary>
     public void Update()
     {
@@ -42,7 +43,7 @@ namespace Bomberman.GameEngine.Graphics
         UpdateImage();
         DrawUpdate();
       }
-      else if (movable)
+      else if (drawEveryFrame)
       {
         DrawUpdate();
       };
@@ -61,12 +62,18 @@ namespace Bomberman.GameEngine.Graphics
     public override void SwitchImage(string variant)
     {
       currFrameNum = 0;
-      // if static image
       if (animatedImages.ContainsKey(variant))
       {
         currVariant = variant;
         UpdateImage();
         DrawUpdate();
+      } else if (images.ContainsKey(variant))
+      {
+        base.SwitchImage(variant);
+      }
+      else
+      {
+        Debug.WriteLine($"No variant {variant}");
       }
     }
     public void StartAnimation()
@@ -89,6 +96,7 @@ namespace Bomberman.GameEngine.Graphics
       {
         if (pair.Value == null)
         {
+          Debug.WriteLine($"Load stat {GetImage(GetImageUri(pair.Key))}");
           images[pair.Key] = GetImage(GetImageUri(pair.Key));
         }
         else

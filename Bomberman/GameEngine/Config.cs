@@ -16,8 +16,8 @@ namespace Bomberman.GameEngine
     public static readonly int FramesPerCycle = 10;
     public static readonly int FrameDuration = 25;
     // set to 246 to test random generation
-    public static readonly int NumStraightMob = 1;
-    public static readonly int NumRandomMob = 0;
+    public static readonly int NumStraightMob = 2;
+    public static readonly int NumRandomMob = 2;
     public static readonly int NumMobs = NumStraightMob + NumRandomMob;
     public static readonly int NumBricks = 50;
     public static readonly int NumBombNumPU = 2;
