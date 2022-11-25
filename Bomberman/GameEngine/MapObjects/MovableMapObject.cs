@@ -104,6 +104,9 @@ namespace Bomberman.GameEngine.MapObjects
         // Debug.WriteLine($"[{dir} UP]: STOP AFTER DONE");
       }
     }
+    /// <summary>
+    /// Movable object is an organism, it shall be able to die
+    /// </summary>
     public virtual void Dead()
     {
       IsDead = true;

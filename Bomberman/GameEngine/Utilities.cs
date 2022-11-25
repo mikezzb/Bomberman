@@ -1,13 +1,30 @@
-﻿using Bomberman.GameEngine;
-using Bomberman.GameEngine.Enums;
+﻿using Bomberman.GameEngine.Enums;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace Bomberman.GameEngine
 {
+  /// <summary>
+  /// Utilities for bomberman game
+  /// </summary>
   public static class Utilities
   {
+    public static HashSet<int> GetRandomNumbers(int count, int min, int max)
+    {
+      HashSet<int> numbers = new();
+      Random r = Config.Rnd;
+      for (int i = 0; i < count; i++)
+      {
+        int num;
+        do
+        {
+          num = r.Next(min, max);
+        } while (numbers.Contains(num));
+        numbers.Add(num);
+      }
+      return numbers;
+    }
     public static string ToMMSS(int seconds)
     {
       TimeSpan time = TimeSpan.FromSeconds(seconds);

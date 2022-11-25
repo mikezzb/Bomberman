@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Media.Imaging;
 
 namespace Bomberman.GameEngine.Graphics
@@ -67,7 +67,8 @@ namespace Bomberman.GameEngine.Graphics
         currVariant = variant;
         UpdateImage();
         DrawUpdate();
-      } else if (images.ContainsKey(variant))
+      }
+      else if (images.ContainsKey(variant))
       {
         base.SwitchImage(variant);
       }

@@ -5,27 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Bomberman.GameEngine
 {
   /// <summary>
-  /// Controller of the game
-  /// - GameLoop
-  /// - GameOver
-  /// - GameSetup
-  /// 
+  /// The Bomberman Game
   /// </summary>
   public class Game
   {
-    /// <summary>
-    /// Key: index
-    /// Value: a map object
-    /// </summary>
     public bool Started { get; protected set; }
     /// <summary>
     /// All visible stationary map objects
-    /// <para>- When powerup hiding behind brick, only brick in map</para>
+    /// <para>i.e. When powerup hiding behind brick, only brick in map</para>
     /// </summary>
     protected readonly Dictionary<int, MapObject> map = new();
     protected readonly Dictionary<int, Powerup> powerups = new();
@@ -35,8 +26,7 @@ namespace Bomberman.GameEngine
     protected readonly List<IUpdatable> updatables = new();
     private readonly GameSoundPlayer sp;
     /// <summary>
-    /// Key: position
-    /// Value: if blocker exists on that position
+    /// Positions w/ blocker
     /// </summary>
     protected readonly HashSet<int> blockers = new();
     protected Key? key;
@@ -50,161 +40,49 @@ namespace Bomberman.GameEngine
       this.onGameEnded = onGameEnded;
       sp = GameSoundPlayer.Instance;
     }
-    protected bool HasEntityAt<T>(int index)
-    {
-      MapObject? obj;
-      map.TryGetValue(index, out obj);
-      return obj.GetType() == typeof(T);
-    }
-    protected MapObject? GetMapObjectAt(int index)
-    {
-      MapObject? obj;
-      map.TryGetValue(index, out obj);
-      return obj;
-    }
-    protected MapObject? GetEntityAt<T>(int index)
-    {
-      MapObject? obj = GetMapObjectAt(index);
-      return obj != null && obj.GetType() == typeof(T) ? obj : default;
-    }
-    protected bool HasPowerupAt(int index) => HasEntityAt<Powerup>(index);
-    protected Brick? GetBrickAt(int index) => (Brick?)GetEntityAt<Brick>(index);
-    protected virtual void OnTimerTick(int frameNum)
-    {
-      if (!Started) return;
-      // player mob collision
-      for (int i = mobs.Count - 1; i >= 0; i--)
-      {
-        if (mobs[i].OverlapsWith(player))
-        {
-          Debug.WriteLine("[DEAD]: mob collision");
-          OnPlayerDead();
-        }
-      }
-      // key collision
-      if (key != null && player.Position.Index == key.Position.Index)
-      {
-        player.ApplyKey();
-        RemoveKey();
-      }
-      // door collision
-      if (player.HasKey && player.Position.Index == door.Position.Index)
-      {
-        GameOver(GameEndType.Cleared);
-      }
-      // player powerup collision
-      if (powerups.ContainsKey(player.Position.Index))
-      {
-        Powerup powerup = powerups[player.Position.Index];
-        powerups.Remove(player.Position.Index);
-        player.ApplyPowerup(powerup);
-        RemovePowerup(powerup);
-      }
-      // bomb collision
-      for (int i = bombs.Count - 1; i >= 0; i--)
-      {
-        Bomb bomb = bombs[i];
-        if (bomb.Explosing)
-        {
-          // Debug.WriteLine($"Explosion checking: {bomb.Position}");
-          for (int j = mobs.Count - 1; j >= 0; j--)
-          {
-            if (bomb.IntersectsWith(mobs[j]))
-            {
-              Debug.WriteLine("Mob killed by bomb");
-              OnMobDead(mobs[j]);
-            }
-          }
-          if (bomb.IntersectsWith(player))
-          {
-            Debug.WriteLine("Player killed by bomb");
-            OnPlayerDead();
-          }
-        }
-      }
-
-      // update all updatable objects
-      for (int i = updatables.Count - 1; i >= 0; i--)
-      {
-        updatables[i].Update();
-      }
-    }
-    protected virtual void OnPlayerDead()
-    {
-      Debug.WriteLine("player dead");
-      player.Dead();
-      GameOver(GameEndType.Dead);
-    }
-    protected virtual void GameOver(GameEndType type)
-    {
-      Debug.WriteLine("game over");
-      timer.Stop();
-      foreach (MovableMapObject obj in mobs)
-      {
-        obj.StopMoveNow();
-      }
-      Started = false;
-      onGameEnded.Invoke(type);
-    }
-    protected void AddUpdatableMapObject(IUpdatable obj)
-    {
-      updatables.Add(obj);
-    }
-    protected void RemoveUpdatable(IUpdatable obj)
-    {
-      updatables.Remove(obj);
-    }
-    public IntPoint GetRandomPosition(bool isBlocker = true, int minX = 1, int minY = 1)
-    {
-      Random r = Config.Rnd;
-      // 1 & -1 is cuz boundary all walls
-      int x, y;
-      int key;
-      do
-      {
-        x = r.Next(minX, Config.Width - 1);
-        y = r.Next(minY, Config.Height - 1);
-        key = Point2Index(x, y);
-      } while (
-        blockers.Contains(key) ||
-        (x == 1 && y == 1) ||
-        (x == 1 && y == 2) ||
-        (x == 2 && y == 1)
-       );
-      if (isBlocker)
-      {
-        blockers.Add(key);
-      }
-      return new IntPoint(x, y);
-    }
-    public List<IntPoint> GetRandomPositions(int count, bool isBlocker = true, int minX = 1, int minY = 1)
-    {
-      List<IntPoint> positions = new();
-      HashSet<int> generated = new();
-      for (int i = 0; i < count; i++)
-      {
-        IntPoint pos;
-        int idx;
-        do
-        {
-          pos = GetRandomPosition(isBlocker, minX, minY);
-          idx = Point2Index(pos);
-        } while (generated.Contains(idx));
-        positions.Add(pos);
-        generated.Add(idx);
-      }
-      return positions;
-    }
-    public void InitGame()
+    /// <summary>
+    /// Passive lazy init
+    /// </summary>
+    public virtual void InitGame()
     {
       InitMapEntries();
       InitMobsMovement();
     }
-    public void StartGame()
+    /// <summary>
+    /// Start game
+    /// </summary>
+    public virtual void StartGame()
     {
       sp.PlaySound(GameSound.Bgm);
       timer.Start();
       Started = true;
+    }
+    // player controls
+    public void PlayerStartWalk(Direction dir)
+    {
+      if (Started) player.Move(dir);
+    }
+    public void PlayerPlaceBomb()
+    {
+      bool validBombNum = player.CanPlaceBomb;
+      if (validBombNum)
+      {
+        IntPoint pos = player.Position;
+        // if already planted at that position
+        if (GetMapObjectAt(pos.Index) != null)
+        {
+          Debug.WriteLine("[BOMB]: BLOCKED");
+          Debug.WriteLine(GetMapObjectAt(pos.Index));
+          return;
+        };
+        // plant
+        player.PlaceBomb();
+        CreateBomb(pos);
+      }
+    }
+    public void PlayerStopWalk(Direction dir)
+    {
+      player.StopMove(dir);
     }
     protected virtual void InitMapEntries()
     {
@@ -216,21 +94,6 @@ namespace Bomberman.GameEngine
       InitPlayer();
       // init mobs
       InitMobs();
-    }
-    public static HashSet<int> GetRandomNumbers(int count, int min, int max)
-    {
-      HashSet<int> numbers = new();
-      Random r = Config.Rnd;
-      for (int i = 0; i < count; i++)
-      {
-        int num;
-        do
-        {
-          num = r.Next(min, max);
-        } while (numbers.Contains(num));
-        numbers.Add(num);
-      }
-      return numbers;
     }
     protected virtual void InitMobs()
     {
@@ -248,7 +111,7 @@ namespace Bomberman.GameEngine
     /// </summary>
     protected virtual void InitMobsMovement()
     {
-      foreach(Mob mob in mobs)
+      foreach (Mob mob in mobs)
       {
         List<Direction> directions = GetMovableDirectionsList(mob.MovablePosition);
         mob.InitMovement(directions);
@@ -275,7 +138,7 @@ namespace Bomberman.GameEngine
        * - 0, 1 for key & door
        * - rest for powerups
        */
-      HashSet<int> magicBricks = GetRandomNumbers(2 + Config.NumPowerups, 0, Config.NumBricks);
+      HashSet<int> magicBricks = Utilities.GetRandomNumbers(2 + Config.NumPowerups, 0, Config.NumBricks);
       int countMagicBricks = 0;
       for (int i = 0; i < Config.NumBricks; i++)
       {
@@ -310,7 +173,7 @@ namespace Bomberman.GameEngine
     protected void CreateBrick(IntPoint pos)
     {
       Brick brick = new Brick(pos.X, pos.Y);
-      int posIndex = Point2Index(pos);
+      int posIndex = pos.Index;
       AddToMap(brick, posIndex, true, false);
     }
     protected void CreatePowerup(IntPoint pos, PowerupType type)
@@ -424,29 +287,6 @@ namespace Bomberman.GameEngine
           break;
       }
     }
-    // player controls
-    public void PlayerStartWalk(Direction dir)
-    {
-      if (Started) player.Move(dir);
-    }
-    public void PlayerPlaceBomb()
-    {
-      bool validBombNum = player.CanPlaceBomb;
-      if (validBombNum)
-      {
-        IntPoint pos = player.Position;
-        // if already planted at that position
-        if (GetMapObjectAt(pos.Index) != null)
-        {
-          Debug.WriteLine("[BOMB]: BLOCKED");
-          Debug.WriteLine(GetMapObjectAt(pos.Index));
-          return;
-        };
-        // plant
-        player.PlaceBomb();
-        CreateBomb(pos);
-      }
-    }
     protected void DelayedRemoveCallback(MapObject sender)
     {
       Type type = sender.GetType();
@@ -485,11 +325,6 @@ namespace Bomberman.GameEngine
           obj.Remove();
         };
       }
-    }
-    protected async void RemoveAfter(int index, int duratonInMs, MapObject? obj = null, bool isBlocker = false, bool isUpdateble = false, bool removeObj = false)
-    {
-      await Task.Delay(duratonInMs);
-      RemoveFromMap(index, obj, isBlocker, isUpdateble, removeObj);
     }
     protected void BombExplodeHandler(object sender, EventArgs e)
     {
@@ -551,7 +386,159 @@ namespace Bomberman.GameEngine
       bomb.DrawExplosions(canMoveTo);
 
     }
-    public void OnBeforeNextMove(object sender, BeforeNextMoveEventArgs e)
+    protected bool HasEntityAt<T>(int index)
+    {
+      MapObject? obj;
+      map.TryGetValue(index, out obj);
+      return obj != null && obj.GetType() == typeof(T);
+    }
+    protected MapObject? GetMapObjectAt(int index)
+    {
+      MapObject? obj;
+      map.TryGetValue(index, out obj);
+      return obj;
+    }
+    protected MapObject? GetEntityAt<T>(int index)
+    {
+      MapObject? obj = GetMapObjectAt(index);
+      return obj != null && obj.GetType() == typeof(T) ? obj : default;
+    }
+    protected bool HasPowerupAt(int index) => HasEntityAt<Powerup>(index);
+    protected Brick? GetBrickAt(int index) => (Brick?)GetEntityAt<Brick>(index);
+    protected virtual void OnTimerTick(int frameNum)
+    {
+      if (!Started) return;
+      // player mob collision
+      for (int i = mobs.Count - 1; i >= 0; i--)
+      {
+        if (mobs[i].OverlapsWith(player))
+        {
+          Debug.WriteLine("[DEAD]: mob collision");
+          OnPlayerDead();
+        }
+      }
+      // key collision
+      if (key != null && player.Position.Index == key.Position.Index)
+      {
+        player.ApplyKey();
+        RemoveKey();
+      }
+      // door collision
+      if (player.HasKey && player.Position.Index == door.Position.Index)
+      {
+        GameOver(GameEndType.Cleared);
+      }
+      // player powerup collision
+      if (powerups.ContainsKey(player.Position.Index))
+      {
+        Powerup powerup = powerups[player.Position.Index];
+        powerups.Remove(player.Position.Index);
+        player.ApplyPowerup(powerup);
+        RemovePowerup(powerup);
+      }
+      // bomb collision
+      for (int i = bombs.Count - 1; i >= 0; i--)
+      {
+        Bomb bomb = bombs[i];
+        if (bomb.Explosing)
+        {
+          // Debug.WriteLine($"Explosion checking: {bomb.Position}");
+          for (int j = mobs.Count - 1; j >= 0; j--)
+          {
+            if (bomb.IntersectsWith(mobs[j]))
+            {
+              Debug.WriteLine("Mob killed by bomb");
+              OnMobDead(mobs[j]);
+            }
+          }
+          if (bomb.IntersectsWith(player))
+          {
+            Debug.WriteLine("Player killed by bomb");
+            OnPlayerDead();
+          }
+        }
+      }
+
+      // update all updatable objects
+      for (int i = updatables.Count - 1; i >= 0; i--)
+      {
+        updatables[i].Update();
+      }
+    }
+    protected virtual void OnPlayerDead()
+    {
+      Debug.WriteLine("player dead");
+      player.Dead();
+      GameOver(GameEndType.Dead);
+    }
+    protected virtual void GameOver(GameEndType type)
+    {
+      Debug.WriteLine("game over");
+      timer.Stop();
+      foreach (MovableMapObject obj in mobs)
+      {
+        obj.StopMoveNow();
+      }
+      Started = false;
+      onGameEnded.Invoke(type);
+    }
+    protected void AddUpdatableMapObject(IUpdatable obj)
+    {
+      updatables.Add(obj);
+    }
+    protected void RemoveUpdatable(IUpdatable obj)
+    {
+      updatables.Remove(obj);
+    }
+    /// <summary>
+    /// Random non blocked
+    /// </summary>
+    /// <param name="isBlocker"></param>
+    /// <param name="minX"></param>
+    /// <param name="minY"></param>
+    /// <returns></returns>
+    protected IntPoint GetRandomPosition(bool isBlocker = true, int minX = 1, int minY = 1)
+    {
+      Random r = Config.Rnd;
+      // 1 & -1 is cuz boundary all walls
+      int x, y;
+      int key;
+      do
+      {
+        x = r.Next(minX, Config.Width - 1);
+        y = r.Next(minY, Config.Height - 1);
+        key = Point2Index(x, y);
+      } while (
+        blockers.Contains(key) ||
+        (x == 1 && y == 1) ||
+        (x == 1 && y == 2) ||
+        (x == 2 && y == 1)
+       );
+      if (isBlocker)
+      {
+        blockers.Add(key);
+      }
+      return new IntPoint(x, y);
+    }
+    protected List<IntPoint> GetRandomPositions(int count, bool isBlocker = true, int minX = 1, int minY = 1)
+    {
+      List<IntPoint> positions = new();
+      HashSet<int> generated = new();
+      for (int i = 0; i < count; i++)
+      {
+        IntPoint pos;
+        int idx;
+        do
+        {
+          pos = GetRandomPosition(isBlocker, minX, minY);
+          idx = pos.Index;
+        } while (generated.Contains(idx));
+        positions.Add(pos);
+        generated.Add(idx);
+      }
+      return positions;
+    }
+    protected void OnBeforeNextMove(object sender, BeforeNextMoveEventArgs e)
     {
       // Debug.WriteLine($"{sender}: On before next move called");
       // Debug.WriteLine($"To: {e.To.X}-{e.To.Y}");
@@ -566,7 +553,7 @@ namespace Bomberman.GameEngine
       }
     }
     // helpers
-    public bool CanMoveTo(IntPoint to)
+    protected bool CanMoveTo(IntPoint to)
     {
       // if blocked
       int posIndex = Point2Index(to.X, to.Y);
@@ -575,11 +562,11 @@ namespace Bomberman.GameEngine
       if (PositionOutBound(to)) return false;
       return true;
     }
-    public static bool PositionOutBound(IntPoint p)
+    protected static bool PositionOutBound(IntPoint p)
     {
       return p.X < 0 || p.X >= Config.Width || p.Y < 0 || p.Y >= Config.Height;
     }
-    public List<Direction> GetMovableDirectionsList(MovableGridPosition pos, Direction? exceptDir = null)
+    protected List<Direction> GetMovableDirectionsList(MovableGridPosition pos, Direction? exceptDir = null)
     {
       List<Direction> directions = new List<Direction>();
       // IntPoint from = obj.GridPosition;
@@ -591,19 +578,11 @@ namespace Bomberman.GameEngine
       }
       return directions;
     }
-    public HashSet<Direction> GetMovableDirectionsSet(MovableGridPosition pos, Direction? exceptDir = null)
+    protected HashSet<Direction> GetMovableDirectionsSet(MovableGridPosition pos, Direction? exceptDir = null)
     {
       return new HashSet<Direction>(GetMovableDirectionsList(pos, exceptDir));
     }
-    public void PlayerStopWalk(Direction dir)
-    {
-      player.StopMove(dir);
-    }
-    public static int Point2Index(IntPoint point)
-    {
-      return Point2Index(point.X, point.Y);
-    }
-    public static int Point2Index(int x, int y)
+    protected static int Point2Index(int x, int y)
     {
       return x * Config.Width + y;
     }

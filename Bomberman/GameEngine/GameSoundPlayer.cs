@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Bomberman.GameEngine.Enums;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Media;
-using System.Windows.Threading;
-using Bomberman.GameEngine.Enums;
 
 namespace Bomberman.GameEngine
 {
@@ -57,7 +56,8 @@ namespace Bomberman.GameEngine
       if (CurrSound != null)
       {
         NextSound = type;
-      } else
+      }
+      else
       {
         PlaySound(type);
       }
@@ -80,7 +80,8 @@ namespace Bomberman.GameEngine
         Debug.WriteLine("Play next sound");
         PlaySound((GameSound)NextSound);
         NextSound = null;
-      } else if (replay)
+      }
+      else if (replay)
       {
         // replay current sound
         mediaPlayer.Position = TimeSpan.Zero;

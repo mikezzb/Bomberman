@@ -21,6 +21,7 @@ namespace Bomberman
         return instance;
       }
     }
+    public bool GameCleared => StageNum == Config.NumStages;
     public string StageText => $"STAGE {StageNum}";
     private GameContext() { }
     public void SetStageNum(int stageNum)

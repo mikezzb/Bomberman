@@ -1,7 +1,6 @@
 ﻿using Bomberman.GameEngine.Enums;
 using Bomberman.GameEngine.MapObjects;
 using System;
-using System.Collections.Generic;
 
 namespace Bomberman.GameEngine
 {
@@ -11,7 +10,8 @@ namespace Bomberman.GameEngine
   public class StageGame : Game
   {
     private readonly int stageNum;
-    public StageGame(int stageNum, Action<GameEndType> onGameEnded) : base(onGameEnded) {
+    public StageGame(int stageNum, Action<GameEndType> onGameEnded) : base(onGameEnded)
+    {
       this.stageNum = stageNum;
     }
     protected override void InitMapEntries()

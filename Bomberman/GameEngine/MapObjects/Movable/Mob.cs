@@ -10,11 +10,10 @@ namespace Bomberman.GameEngine.MapObjects
   /// </summary>
   public class Mob : MovableMapObject
   {
-    public static int StuckRetryInterval = Utilities.Duration2FrameNum(1000);
+    private static readonly int StuckRetryInterval = Utilities.Duration2FrameNum(1000);
     private bool stuck = false;
     private Direction initDir;
     public MobType Type { get; private set; }
-    public Direction OppositeDir { get => Utilities.GetOppositeDirection((Direction)CurrDir); }
     private static readonly Dictionary<string, int?> variant = new()
     {
       { "dead", null },

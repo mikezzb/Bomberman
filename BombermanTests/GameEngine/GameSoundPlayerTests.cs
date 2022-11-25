@@ -1,11 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bomberman.GameEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Bomberman.GameEngine.Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using Bomberman.GameEngine.Enums;
 
 namespace Bomberman.GameEngine.Tests
 {

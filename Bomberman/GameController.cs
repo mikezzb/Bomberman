@@ -135,7 +135,8 @@ namespace Bomberman.GameEngine
           {
             store.SetStageNum(0);
             text = "CLEARED ALL STAGES - PRESS ENTER TO RESTART";
-          } else
+          }
+          else
           {
             text = "CLEARED - PRESS ENTER TO NEXT STAGE";
           }
