@@ -10,7 +10,7 @@ namespace Bomberman.GameEngine.MapObjects
   /// </summary>
   public class Player : MovableMapObject
   {
-    private int numBombs = 2;
+    private int numBombs = 1;
     private int placedBombs = 0;
     public int BombRange { get; private set; }
     public bool HasKey { get; private set; }
