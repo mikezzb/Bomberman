@@ -1,4 +1,5 @@
 ﻿using Bomberman.GameEngine.Enums;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -22,14 +23,14 @@ namespace Bomberman.GameEngine.MapObjects
       { "left", 2 },
       { "right", 2 },
     };
-    public Player(int x, int y) : base(x, y, "player", variant, "down", 1, 3)
+    public Player(int x, int y, EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove) : base(x, y, onBeforeNextMove, "player", variant, "down", 1, 3)
     {
       BombRange = 1;
     }
     /// <summary>
     /// Init player at top left corner
     /// </summary>
-    public Player() : this(1, 1) { }
+    public Player(EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove) : this(1, 1, onBeforeNextMove) { }
     /// <summary>
     /// Check if can place bomb, if can, increase count
     /// </summary>

@@ -8,14 +8,14 @@ namespace Bomberman.GameEngine
     public static readonly int MobMinX = 0;
     public static readonly int MobMinY = 0;
     public static readonly int NumStages = 4;
-    public static readonly int GameDuration = 300;
+    public static readonly int GameDuration = 5;
     public static readonly int ItemSize = 40;
     public static readonly int Height = 13;
     public static readonly int Width = 31;
     public static readonly string ImageExt = ".png";
     public static readonly string SoundExt = ".mp3";
     public static readonly int FramesPerCycle = 10;
-    public static readonly int FrameDuration = 25;
+    public static readonly int FrameDuration = 30;
     // set to 246 to test random generation
     public static readonly int NumStraightMob = 2;
     public static readonly int NumRandomMob = 2;
@@ -28,6 +28,7 @@ namespace Bomberman.GameEngine
     public static readonly int RemoveDeadObjectAfterFrameNum = Utilities.Duration2FrameNum(1000);
     public static readonly int NumFramesTillExplode = Utilities.Duration2FrameNum(2000);
     public static readonly int NumFramesTillExplosionFinish = Utilities.Duration2FrameNum(3000);
+    public static readonly int NumFramesTillTimeout = Utilities.Duration2FrameNum(GameDuration * 1000);
   };
   namespace Enums
   {

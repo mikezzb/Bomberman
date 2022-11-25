@@ -7,18 +7,28 @@ namespace Bomberman.GameEngine.MapObjects
 {
   public class Bomb : AnimatedMapObject
   {
-    public static Dictionary<Direction, string> Direction2Explosion = new()
+    public event EventHandler ExplodeEvent;
+    private static readonly Dictionary<Direction, string> Direction2ExplosionName = new()
     {
       { Direction.Left, "horizontal" },
       { Direction.Right, "horizontal" },
       { Direction.Up, "vertical" },
       { Direction.Down, "vertical" }
     };
-    public static Dictionary<string, int?> variants = new()
+    private static readonly Dictionary<string, int?> variants = new()
     {
       { "original", 2 },
       { "exploded", 2 }
     };
+    private Action<MapObject> removeCallback;
+    private List<Explosion> explosions;
+    // for intersection detection
+    private int minX = int.MaxValue;
+    private int maxX = 0;
+    private int minY = int.MaxValue;
+    private int maxY = 0;
+    private GameEngineRect? explosionHorizontalRect;
+    private GameEngineRect? explosionVerticalRect;
     public Bomb(int x, int y, int range, EventHandler ExplodeHandler, Action<MapObject> removeCallback) : base(x, y, "bomb", variants, "original", 1)
     {
       this.removeCallback = removeCallback;
@@ -29,16 +39,6 @@ namespace Bomberman.GameEngine.MapObjects
     public int Range { get; private set; }
     public bool Explosing { get; private set; }
     public bool Exploded { get; private set; }
-    private Action<MapObject> removeCallback;
-    private List<Explosion> explosions;
-    public event EventHandler ExplodeEvent;
-    // for intersection detection
-    private int minX = int.MaxValue;
-    private int maxX = 0;
-    private int minY = int.MaxValue;
-    private int maxY = 0;
-    private GameEngineRect explosionHorizontalRect;
-    private GameEngineRect explosionVerticalRect;
     public override void Update()
     {
       base.Update();
@@ -58,6 +58,40 @@ namespace Bomberman.GameEngine.MapObjects
           exp.Update();
         }
       }
+    }
+    /// <summary>
+    /// Manual explode method
+    /// </summary>
+    public void Explode()
+    {
+      Explode(true);
+    }
+    /// <summary>
+    /// Draw explosions based on info from Game
+    /// </summary>
+    /// <param name="drawableRange"></param>
+    public void DrawExplosions(Dictionary<Direction, List<IntPoint>> drawableRange)
+    {
+      foreach (KeyValuePair<Direction, List<IntPoint>> pair in drawableRange)
+      {
+        int len = pair.Value.Count;
+        if (len == 0) continue;
+
+        for (int i = 0; i < len; i++)
+        {
+          string explosionVariant = Direction2ExplosionName[pair.Key];
+          IntPoint pos = pair.Value[i];
+          if (i == (len - 1))
+          {
+            explosionVariant += $"_{Constants.DirectionName[pair.Key]}_last";
+          }
+          UpdateExtreme(pos);
+          Explosion explosion = new Explosion(pos.X, pos.Y, explosionVariant);
+          explosions.Add(explosion);
+        }
+      }
+      UpdateExtreme(Position);
+      UpdateExplosionRect();
     }
     /// <summary>
     /// Explode logic
@@ -80,46 +114,16 @@ namespace Bomberman.GameEngine.MapObjects
       // trigger event
       ExplodeEvent?.Invoke(this, new EventArgs());
     }
-    /// <summary>
-    /// Manual explode method
-    /// </summary>
-    public void Explode()
-    {
-      Explode(true);
-    }
-    public void DrawExplosions(Dictionary<Direction, List<IntPoint>> drawableRange)
-    {
-      foreach (KeyValuePair<Direction, List<IntPoint>> pair in drawableRange)
-      {
-        int len = pair.Value.Count;
-        if (len == 0) continue;
-
-        for (int i = 0; i < len; i++)
-        {
-          string explosionVariant = Direction2Explosion[pair.Key];
-          IntPoint pos = pair.Value[i];
-          if (i == (len - 1))
-          {
-            explosionVariant += $"_{Constants.DirectionName[pair.Key]}_last";
-          }
-          UpdateExtreme(pos);
-          Explosion explosion = new Explosion(pos.X, pos.Y, explosionVariant);
-          explosions.Add(explosion);
-        }
-      }
-      UpdateExtreme(Position);
-      UpdateExplosionRect();
-    }
     private void UpdateExplosionRect()
     {
-      Debug.WriteLine($"X: {minX}-{maxX} Y: {minY}-{maxY}");
+      // Debug.WriteLine($"X: {minX}-{maxX} Y: {minY}-{maxY}");
       int width = maxX - minX + 1;
       int height = maxY - minY + 1;
-      Debug.WriteLine($"Width: {width} Height: {height}");
+      // Debug.WriteLine($"Width: {width} Height: {height}");
       explosionHorizontalRect = new(minX, Position.Y, width, 1);
       explosionVerticalRect = new(Position.X, minY, 1, height);
-      Debug.WriteLine($"[EXPL HORI]: {explosionHorizontalRect}");
-      Debug.WriteLine($"[EXPL VERT]: {explosionVerticalRect}");
+      // Debug.WriteLine($"[EXPL HORI]: {explosionHorizontalRect}");
+      // Debug.WriteLine($"[EXPL VERT]: {explosionVerticalRect}");
     }
     private void UpdateExtreme(IntPoint pos)
     {

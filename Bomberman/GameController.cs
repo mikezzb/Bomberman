@@ -13,8 +13,9 @@ namespace Bomberman.GameEngine
   /// <summary>
   /// Control the game, interact with the UI
   /// </summary>
-  public class GameController : INotifyPropertyChanged
+  public class GameController : INotifyPropertyChanged, IRemovable, ISwitchable
   {
+    private MainWindow win;
     private static GameController? instance;
     private Game game;
     private DispatcherTimer dispatcherTimer;
@@ -29,7 +30,6 @@ namespace Bomberman.GameEngine
       {
         if (value < 0)
         {
-          OnGameEnded(GameEndType.Timeout);
           return;
         }
         secondsLeft = value;
@@ -56,6 +56,7 @@ namespace Bomberman.GameEngine
       OverlayVisibility = Visibility.Hidden;
       sp = GameSoundPlayer.Instance;
       store = GameContext.Instance;
+      win = MainWindow.Instance;
     }
     // Singleton
     public static GameController Instance
@@ -92,17 +93,10 @@ namespace Bomberman.GameEngine
     {
       SecondsLeft = Config.GameDuration;
       game = CreateGame(store.StageNum);
-      // keydown event
-      if (state == null)
-      {
-        MainWindow.Instance.KeyDown += KeyDownHandler;
-        MainWindow.Instance.KeyUp += KeyUpHandler;
-      }
       // timer
       dispatcherTimer = new DispatcherTimer();
       dispatcherTimer.Tick += OnTick;
       dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-      dispatcherTimer.Start();
       // general
       game.InitGame();
     }
@@ -110,11 +104,12 @@ namespace Bomberman.GameEngine
     {
       state = GameState.Started;
       game.StartGame();
+      dispatcherTimer.Start();
     }
     public void NewGame()
     {
-      Debug.WriteLine("Restart game");
-      Renderer.Clear();
+      Debug.WriteLine("Restart new game");
+      game.Remove();
       InitGame();
       StartGame();
     }
@@ -158,7 +153,7 @@ namespace Bomberman.GameEngine
     // UX Binding
     public void KeyDownHandler(object sender, KeyEventArgs e)
     {
-      Debug.WriteLine($"Key down {GameEnded}");
+      Debug.WriteLine($"Key down {GameEnded} | {e.Key}");
       if (GameEnded)
       {
         switch (e.Key)
@@ -166,6 +161,10 @@ namespace Bomberman.GameEngine
           case Key.Enter:
             // restart game
             NewGame();
+            break;
+          case Key.Escape:
+            // back to home page
+            ReturnToHome();
             break;
         }
         return;
@@ -196,6 +195,35 @@ namespace Bomberman.GameEngine
         game.PlayerStopWalk((Direction)direction);
         return;
       }
+    }
+
+    public void ReturnToHome()
+    {
+      win.SwitchView(this, MainWindow.PageType.Home);
+    }
+    /// <summary>
+    /// Fake remove, but cleanup
+    /// </summary>
+    public void Remove()
+    {
+      state = null;
+      secondsLeft = Config.GameDuration;
+      game.Remove();
+    }
+    public void OnSwitchIn()
+    {
+      if (state != GameState.Started)
+      {
+        StartStage();
+      }
+      win.KeyDown += KeyDownHandler;
+      win.KeyUp += KeyUpHandler;
+    }
+    public void OnSwitchOut()
+    {
+      Remove();
+      win.KeyDown -= KeyDownHandler;
+      win.KeyUp -= KeyUpHandler;
     }
     public void BindCanvas(Canvas cvs)
     {

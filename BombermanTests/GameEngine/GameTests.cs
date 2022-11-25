@@ -1,5 +1,4 @@
-﻿using Bomberman.GameEngine.MapObjects;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bomberman.GameEngine.Tests
 {
@@ -9,8 +8,6 @@ namespace Bomberman.GameEngine.Tests
     [TestMethod()]
     public void PlayerConsumePowerup()
     {
-      Player p = new Player();
-
       Assert.Fail();
     }
 

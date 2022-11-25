@@ -5,6 +5,9 @@ using System.Windows.Media.Imaging;
 
 namespace Bomberman.GameEngine.Graphics
 {
+  /// <summary>
+  /// Display animated images like gif
+  /// </summary>
   public class AnimatedSprite : Sprite, IUpdatable
   {
     /// <summary>
@@ -48,17 +51,6 @@ namespace Bomberman.GameEngine.Graphics
         DrawUpdate();
       };
     }
-    /// <summary>
-    /// Override update image to support animated image update
-    /// </summary>
-    protected override void UpdateImage()
-    {
-      if (currVariant == null) return;
-      if (animatedImages.ContainsKey(currVariant))
-      {
-        imageBrush.ImageSource = animatedImages[currVariant][(int)currFrameNum];
-      }
-    }
     public override void SwitchImage(string variant)
     {
       currFrameNum = 0;
@@ -81,6 +73,27 @@ namespace Bomberman.GameEngine.Graphics
     public void StopAnimation()
     {
       running = false;
+    }
+    public override void Remove()
+    {
+      StopAnimation();
+      base.Remove();
+      foreach (List<BitmapImage> li in animatedImages.Values)
+      {
+        li.Clear();
+      }
+      animatedImages.Clear();
+    }
+    /// <summary>
+    /// Override update image to support animated image update
+    /// </summary>
+    protected override void UpdateImage()
+    {
+      if (currVariant == null) return;
+      if (animatedImages.ContainsKey(currVariant))
+      {
+        imageBrush.ImageSource = animatedImages[currVariant][(int)currFrameNum];
+      }
     }
     /// <summary>
     /// Load both static & animated images
@@ -111,21 +124,11 @@ namespace Bomberman.GameEngine.Graphics
       UpdateImage();
       DrawElement();
     }
-    private Uri GetAnimatedImageUri(string variantName, int frameNum)
+    protected Uri GetAnimatedImageUri(string variantName, int frameNum)
     {
       if (frameNum == 0) return GetImageUri(variantName);
       string baseName = variantName == "default" ? defaultName : $"{name}_{variantName}";
       return GetImageUriFromName($"{baseName}{frameNum}");
-    }
-    public override void Dispose()
-    {
-      StopAnimation();
-      base.Dispose();
-      foreach (List<BitmapImage> li in animatedImages.Values)
-      {
-        li.Clear();
-      }
-      animatedImages.Clear();
     }
   }
 }

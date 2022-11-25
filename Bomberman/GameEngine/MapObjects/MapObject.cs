@@ -10,7 +10,7 @@ namespace Bomberman.GameEngine.MapObjects
   /// <item>Display (Image)</item>
   /// </list>
   /// </summary>
-  public abstract class MapObject
+  public abstract class MapObject : IRemovable
   {
     public GridPosition Position { get; protected set; }
     protected Sprite sprite;
@@ -28,7 +28,7 @@ namespace Bomberman.GameEngine.MapObjects
     }
     public virtual void Remove()
     {
-      sprite?.Dispose();
+      sprite.Remove();
     }
   }
 }

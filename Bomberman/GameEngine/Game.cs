@@ -11,11 +11,11 @@ namespace Bomberman.GameEngine
   /// <summary>
   /// The Bomberman Game
   /// </summary>
-  public class Game
+  public class Game : IRemovable
   {
     public bool Started { get; protected set; }
     /// <summary>
-    /// All visible stationary map objects
+    /// All visible stationary & interactive map objects
     /// <para>i.e. When powerup hiding behind brick, only brick in map</para>
     /// </summary>
     protected readonly Dictionary<int, MapObject> map = new();
@@ -24,16 +24,17 @@ namespace Bomberman.GameEngine
     protected readonly List<Mob> mobs = new();
     protected readonly List<MapObject> backgrounds = new();
     protected readonly List<IUpdatable> updatables = new();
-    private readonly GameSoundPlayer sp;
-    /// <summary>
-    /// Positions w/ blocker
-    /// </summary>
-    protected readonly HashSet<int> blockers = new();
     protected Key? key;
     protected Door door;
+    private readonly GameSoundPlayer sp;
+    /// <summary>
+    /// Positions that having a blocker
+    /// </summary>
+    protected readonly HashSet<int> blockers = new();
     protected Player player;
     protected FrameTimer timer;
     protected Action<GameEndType> onGameEnded;
+    protected int timeoutCountdown = Config.NumFramesTillTimeout;
     public Game(Action<GameEndType> onGameEnded)
     {
       timer = new FrameTimer(Config.FrameDuration, Config.FramesPerCycle, OnTimerTick);
@@ -45,8 +46,8 @@ namespace Bomberman.GameEngine
     /// </summary>
     public virtual void InitGame()
     {
-      InitMapEntries();
-      InitMobsMovement();
+      CreateMapEntries();
+      CreateMobsMovement();
     }
     /// <summary>
     /// Start game
@@ -84,18 +85,26 @@ namespace Bomberman.GameEngine
     {
       player.StopMove(dir);
     }
-    protected virtual void InitMapEntries()
+    /// <summary>
+    /// Remove the game
+    /// </summary>
+    public void Remove()
+    {
+      if (Started == true) GameOver(GameEndType.Timeout);
+      Renderer.Clear();
+    }
+    protected virtual void CreateMapEntries()
     {
       // init the stationary map (walls & floor)
-      InitMap();
+      CreateMap();
       // init bricks & their behinds
-      InitBricksAndBehinds();
+      CreateBricksAndBehinds();
       // init player
-      InitPlayer();
+      CreatePlayer();
       // init mobs
-      InitMobs();
+      CreateMobs();
     }
-    protected virtual void InitMobs()
+    protected virtual void CreateMobs()
     {
       Debug.WriteLine("[INIT]: Mobs");
       List<IntPoint> positions = GetRandomPositions(Config.NumMobs, false, Config.MobMinX, Config.MobMinY);
@@ -109,7 +118,7 @@ namespace Bomberman.GameEngine
     /// <summary>
     /// After map is initiated, make mobs movable (pick a movable direction)
     /// </summary>
-    protected virtual void InitMobsMovement()
+    protected virtual void CreateMobsMovement()
     {
       foreach (Mob mob in mobs)
       {
@@ -119,18 +128,16 @@ namespace Bomberman.GameEngine
     }
     protected virtual void CreateMob(IntPoint pos, MobType type)
     {
-      Mob mob = new(pos.X, pos.Y, type);
-      mob.BeforeNextMove += OnBeforeNextMove;
+      Mob mob = new(pos.X, pos.Y, type, OnBeforeNextMove);
       AddMob(mob);
     }
-    protected virtual void InitPlayer(int x = 1, int y = 1)
+    protected virtual void CreatePlayer(int x = 1, int y = 1)
     {
       Debug.WriteLine("[INIT]: Player");
-      player = new Player(x, y);
-      player.BeforeNextMove += OnBeforeNextMove;
+      player = new Player(x, y, OnBeforeNextMove);
       AddUpdatableMapObject(player);
     }
-    protected virtual void InitBricksAndBehinds()
+    protected virtual void CreateBricksAndBehinds()
     {
       Debug.WriteLine("[INIT]: Bricks & Behinds");
       /*
@@ -254,7 +261,7 @@ namespace Bomberman.GameEngine
     /// Init stationary map according to map definition
     /// </summary>
     /// <param name="mapDef"></param>
-    protected virtual void InitMap(string? mapDef = null)
+    protected virtual void CreateMap(string? mapDef = null)
     {
       Debug.WriteLine("[INIT]: Map");
       using (StringReader reader = new(mapDef ?? Constants.Map))
@@ -265,7 +272,7 @@ namespace Bomberman.GameEngine
         {
           foreach (char c in line)
           {
-            InitMapEntry(c, j, i);
+            CreateMapEntry(c, j, i);
             j++;
           }
           i++;
@@ -273,7 +280,7 @@ namespace Bomberman.GameEngine
         }
       }
     }
-    protected virtual void InitMapEntry(char c, int x, int y)
+    protected virtual void CreateMapEntry(char c, int x, int y)
     {
       switch (c)
       {
@@ -408,6 +415,12 @@ namespace Bomberman.GameEngine
     protected virtual void OnTimerTick(int frameNum)
     {
       if (!Started) return;
+      // timeout check
+      if (timeoutCountdown-- == 0)
+      {
+        GameOver(GameEndType.Timeout);
+        return;
+      }
       // player mob collision
       for (int i = mobs.Count - 1; i >= 0; i--)
       {
@@ -474,12 +487,12 @@ namespace Bomberman.GameEngine
     protected virtual void GameOver(GameEndType type)
     {
       Debug.WriteLine("game over");
+      Started = false;
       timer.Stop();
       foreach (MovableMapObject obj in mobs)
       {
         obj.StopMoveNow();
       }
-      Started = false;
       onGameEnded.Invoke(type);
     }
     protected void AddUpdatableMapObject(IUpdatable obj)

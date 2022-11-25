@@ -26,17 +26,17 @@ namespace Bomberman.GameEngine.Graphics
         board = value;
       }
     }
-    public static void DrawImage(Uri uri, double x, double y)
+    public static void DrawGridImage(Uri uri, double x, double y)
     {
       ImageBrush skin = new ImageBrush();
       skin.ImageSource = new BitmapImage(uri);
-      DrawRectangle(skin, x, y);
+      DrawGridRectangle(skin, x, y);
     }
-    public static void DrawRectangle(Brush brush, double x, double y)
+    public static void DrawGridRectangle(Brush brush, double x, double y)
     {
-      DrawRectangle(brush, x, y, 1, 1);
+      DrawGridRectangle(brush, x, y, 1, 1);
     }
-    public static void DrawRectangle(Brush brush, double x, double y, double width, double height)
+    public static void DrawGridRectangle(Brush brush, double x, double y, double width, double height)
     {
       Debug.WriteLine("Render rect");
       Rectangle rect = new Rectangle

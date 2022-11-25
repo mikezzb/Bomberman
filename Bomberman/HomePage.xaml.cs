@@ -9,7 +9,7 @@ namespace Bomberman
   /// <summary>
   /// Interaction logic for HomePage.xaml
   /// </summary>
-  public partial class HomePage : Page
+  public partial class HomePage : Page, ISwitchable
   {
     private MainWindow win;
     private readonly GameContext store;
@@ -22,7 +22,6 @@ namespace Bomberman
       sp.PlaySound(GameSound.Title);
       DataContext = store;
       win = MainWindow.Instance;
-      win.KeyDown += KeyDownHandler;
     }
 
     // UX Binding
@@ -45,8 +44,7 @@ namespace Bomberman
 
     public void StartGame()
     {
-      win.KeyDown -= KeyDownHandler;
-      win.SwitchView(MainWindow.PageType.Game);
+      win.SwitchView(this, MainWindow.PageType.Game);
     }
 
     private void StageIncrBtn_Click(object sender, RoutedEventArgs e)
@@ -62,6 +60,15 @@ namespace Bomberman
     private void StartBtn_Click(object sender, RoutedEventArgs e)
     {
       StartGame();
+    }
+
+    public void OnSwitchOut()
+    {
+      win.KeyDown -= KeyDownHandler;
+    }
+    public void OnSwitchIn()
+    {
+      win.KeyDown += KeyDownHandler;
     }
   }
 }

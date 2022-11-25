@@ -27,8 +27,9 @@ namespace Bomberman.GameEngine.MapObjects
     public event EventHandler<BeforeNextMoveEventArgs> BeforeNextMove;
 
     public MovableGridPosition MovablePosition { get => movablePosition; }
-    protected MovableMapObject(int x, int y, string name, Dictionary<string, int?>? variant, string? defaultVariant, double speed = 1.0, int zIndex = 2) : base()
+    protected MovableMapObject(int x, int y, EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove, string name, Dictionary<string, int?>? variant, string? defaultVariant, double speed = 1.0, int zIndex = 2) : base()
     {
+      BeforeNextMove += onBeforeNextMove;
       this.speed = speed;
       Position = new MovableGridPosition(x, y);
       sprite = new AnimatedSprite(name, variant, defaultVariant, Position, zIndex, true);

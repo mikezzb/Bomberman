@@ -7,7 +7,10 @@ using System.Windows.Shapes;
 
 namespace Bomberman.GameEngine.Graphics
 {
-  public class Sprite : IDisposable
+  /// <summary>
+  /// To display an image in renderer
+  /// </summary>
+  public class Sprite : IRemovable
   {
     protected readonly string name;
     protected readonly Dictionary<string, int?> variant;
@@ -42,15 +45,29 @@ namespace Bomberman.GameEngine.Graphics
       };
       LoadImages(defaultVariant);
     }
-    protected virtual void UpdateImage()
+    public virtual void Remove()
     {
-      imageBrush.ImageSource = images[currVariant];
+      Renderer.RemoveElement(canvasImage);
+      images.Clear();
     }
     public virtual void SwitchImage(string variant)
     {
       currVariant = variant;
       UpdateImage();
       DrawUpdate();
+    }
+    public virtual void DrawElement()
+    {
+      Renderer.DrawElement(canvasImage, position.CanvasX, position.CanvasY, this.zIndex);
+    }
+    public void DrawUpdate()
+    {
+      // Debug.WriteLine($"Update x: {position.CanvasX} y: {position.CanvasY}");
+      Renderer.PositionElement(canvasImage, position.CanvasX, position.CanvasY);
+    }
+    protected virtual void UpdateImage()
+    {
+      imageBrush.ImageSource = images[currVariant];
     }
     protected virtual void LoadImages(string defaultVariant)
     {
@@ -65,15 +82,6 @@ namespace Bomberman.GameEngine.Graphics
       }
       DrawElement();
     }
-    public virtual void DrawElement()
-    {
-      Renderer.DrawElement(canvasImage, position.CanvasX, position.CanvasY, this.zIndex);
-    }
-    public void DrawUpdate()
-    {
-      // Debug.WriteLine($"Update x: {position.CanvasX} y: {position.CanvasY}");
-      Renderer.PositionElement(canvasImage, position.CanvasX, position.CanvasY);
-    }
     protected static BitmapImage GetImage(Uri uri)
     {
       return new BitmapImage(uri);
@@ -85,12 +93,6 @@ namespace Bomberman.GameEngine.Graphics
     protected static Uri GetImageUriFromName(string name)
     {
       return new Uri("Resources/images/" + name + Config.ImageExt, UriKind.Relative);
-    }
-
-    public virtual void Dispose()
-    {
-      Renderer.RemoveElement(canvasImage);
-      images.Clear();
     }
   }
 }

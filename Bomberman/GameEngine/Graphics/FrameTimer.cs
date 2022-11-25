@@ -17,13 +17,6 @@ namespace Bomberman.GameEngine.Graphics
     private readonly Action? endCallback;
     public double Progress { get => (double)FrameCounter / numFrames; }
     public bool IsRunning { get; private set; }
-    /// <summary>
-    /// Create FrameTimer
-    /// </summary>
-    /// <param name="durationInMs"></param>
-    /// <param name="numFrames"></param>
-    /// <param name="onTick"></param>
-    /// <param name="onEnd"></param>
     public FrameTimer(int durationInMs, int numFrames, Action<int> onTick, Action? onEnd = null)
     {
       // Debug.WriteLine("FrameTimer contructed");

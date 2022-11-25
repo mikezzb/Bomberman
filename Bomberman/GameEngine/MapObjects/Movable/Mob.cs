@@ -1,4 +1,5 @@
 ﻿using Bomberman.GameEngine.Enums;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -20,7 +21,7 @@ namespace Bomberman.GameEngine.MapObjects
       { "left", 2 },
       { "right", 2 },
     };
-    public Mob(int x, int y, MobType type) : base(x, y, type == MobType.RandomWalk ? "oneal" : "minvo", variant, "left")
+    public Mob(int x, int y, MobType type, EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove) : base(x, y, onBeforeNextMove, type == MobType.RandomWalk ? "oneal" : "minvo", variant, "left")
     {
       Type = type;
     }

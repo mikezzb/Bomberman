@@ -43,18 +43,24 @@ namespace Bomberman
     {
       InitializeComponent();
       Instance = this;
-      SwitchView(PageType.Home);
+      SwitchView(null, PageType.Home);
     }
 
-    public void SwitchView(PageType type)
+    public void SwitchView(ISwitchable? sender, PageType type)
     {
+      if (sender != null)
+      {
+        sender.OnSwitchOut();
+      }
       switch (type)
       {
         case PageType.Home:
           frameNavigation.Content = HomePage;
+          ((ISwitchable)HomePage).OnSwitchIn();
           break;
         case PageType.Game:
           frameNavigation.Content = GamePage;
+          ((ISwitchable)GamePage).OnSwitchIn();
           break;
       }
     }

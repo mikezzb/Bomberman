@@ -14,11 +14,11 @@ namespace Bomberman.GameEngine
     {
       this.stageNum = stageNum;
     }
-    protected override void InitMapEntries()
+    protected override void CreateMapEntries()
     {
-      InitMap(Constants.StagesMap[stageNum - 1]);
+      CreateMap(Constants.StagesMap[stageNum - 1]);
     }
-    protected override void InitMapEntry(char c, int x, int y)
+    protected override void CreateMapEntry(char c, int x, int y)
     {
       bool addFloor = true;
       bool addBrick = false;
@@ -37,7 +37,7 @@ namespace Bomberman.GameEngine
           CreateMob(pos, MobType.RandomWalk);
           break;
         case (char)GameObject.Player:
-          InitPlayer(x, y);
+          CreatePlayer(x, y);
           break;
         case (char)GameObject.Brick:
           addBrick = true;
