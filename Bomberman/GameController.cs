@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Threading.Tasks;
 
 namespace Bomberman.GameEngine
 {
@@ -20,6 +21,7 @@ namespace Bomberman.GameEngine
     private DispatcherTimer dispatcherTimer;
     public event PropertyChangedEventHandler? PropertyChanged;
     private GameState? state;
+    private readonly GameSoundPlayer sp;
     private int secondsLeft = Config.GameDuration;
     public int SecondsLeft
     {
@@ -31,20 +33,20 @@ namespace Bomberman.GameEngine
           return;
         }
         secondsLeft = value;
-        GameBanner = $"TIME {SecondsLeft}";
+        GameStateText = $"TIME {SecondsLeft}";
         InvokePropertyChanged("TimeLeft");
       }
     }
     private bool GameEnded => state == GameState.Ended;
     // UI Level Properties
     private string gameBanner;
-    public string GameBanner
+    public string GameStateText
     {
       get => gameBanner;
       private set
       {
         gameBanner = value;
-        InvokePropertyChanged("Gamebanner");
+        InvokePropertyChanged("GameStateText");
       }
     }
     public Visibility OverlayVisibility { get; private set; }
@@ -52,6 +54,7 @@ namespace Bomberman.GameEngine
     private GameController()
     {
       OverlayVisibility = Visibility.Hidden;
+      sp = GameSoundPlayer.Instance;
     }
     // Singleton
     public static GameController Instance
@@ -67,7 +70,13 @@ namespace Bomberman.GameEngine
     {
       SecondsLeft--;
     }
-    public void InitGame()
+    public void StartStage(int stage = 1)
+    {
+      sp.PlaySound(GameSound.StageStart);
+      InitGame();
+      StartGame();
+    }
+    private void InitGame()
     {
       SecondsLeft = Config.GameDuration;
       game = new Game(OnGameEnded);
@@ -85,7 +94,7 @@ namespace Bomberman.GameEngine
       // general
       game.InitGame();
     }
-    public void StartGame()
+    private void StartGame()
     {
       state = GameState.Started;
       HideOverlay();
@@ -109,18 +118,21 @@ namespace Bomberman.GameEngine
       {
         case GameEndType.Cleared:
           Debug.WriteLine("CLEARED");
+          sp.PlaySound(GameSound.StageClear, false);
           text = "CLEARED - PRESS ENTER TO NEXT STAGE";
           break;
         case GameEndType.Dead:
           Debug.WriteLine("Dead");
+          sp.PlaySound(GameSound.GameOver, false);
           text = "PLAYER DEAD - PRESS ENTER TO RESTART";
           break;
         case GameEndType.Timeout:
           Debug.WriteLine("Timeout");
+          sp.PlaySound(GameSound.GameOver, false);
           text = "GAME OVER - PRESS ENTER TO RESTART";
           break;
       }
-      ShowOverlay(text);
+      GameStateText += $" - {text}";
       Debug.WriteLine("Game ended");
     }
     // UX Binding
@@ -165,14 +177,13 @@ namespace Bomberman.GameEngine
         return;
       }
     }
-    public void ShowOverlay(string text)
+    private void ShowOverlay(string text, int durationInMs = 2000)
     {
       Debug.WriteLine($"Show overlay {text}");
       OverlayVisibility = Visibility.Visible;
       OverlayText = text;
-      GameBanner += $" - {text}";
     }
-    public void HideOverlay()
+    private void HideOverlay()
     {
       OverlayVisibility = Visibility.Hidden;
       OverlayText = "";

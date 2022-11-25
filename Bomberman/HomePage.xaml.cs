@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-
+using Bomberman.GameEngine;
+using Bomberman.GameEngine.Enums;
 namespace Bomberman
 {
   /// <summary>
@@ -11,10 +12,9 @@ namespace Bomberman
     public HomePage()
     {
       InitializeComponent();
-    }
-    private void StartButton_Click(object sender, RoutedEventArgs e)
-    {
-
+      // play home page BGM
+      GameSoundPlayer sp = GameSoundPlayer.Instance;
+      sp.PlaySound(GameSound.Title);
     }
   }
 }

@@ -15,8 +15,7 @@ namespace Bomberman
       gameController = GameController.Instance;
       DataContext = gameController;
       gameController.BindCanvas(gameBoard);
-      gameController.InitGame();
-      gameController.StartGame();
+      gameController.StartStage();
     }
   }
 }

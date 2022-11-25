@@ -25,20 +25,19 @@
             <Grid.Resources>
                 <Style BasedOn="{StaticResource myTextStyle}" TargetType="{x:Type TextBlock}" />
             </Grid.Resources>
-            <TextBlock x:Name="gameBanner" Text="{Binding GameBanner, FallbackValue=0}">
+            <TextBlock x:Name="gameStateText" Text="{Binding GameStateText, FallbackValue=0}">
                 <TextBlock.Effect>
                     <DropShadowEffect ShadowDepth="1" BlurRadius="1" Color="Black" />
                 </TextBlock.Effect>
             </TextBlock>
-            
         </Grid>
         <Canvas x:Name="gameBoard" Margin="0,60,0,0" />
-        <TextBlock Visibility="{Binding OverlayVisibility, FallbackValue=Hidden}"
-            Text="{Binding OverlayText}"
-            Foreground="Black"
-            FontWeight="Bold"
-            FontSize="24"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"/>
+        <Grid Background="Black" x:Name="gameBanner" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{Binding OverlayVisibility, FallbackValue=Hidden}">
+            <TextBlock Text="{Binding OverlayText}">
+                <TextBlock.Effect>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="1" Color="Black" />
+                </TextBlock.Effect>
+            </TextBlock>
+        </Grid>
     </Grid>
 </Page>
