@@ -121,4 +121,22 @@
   <data name="map" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>data\map.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="stage1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>data\stage1.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="stage2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>data\stage2.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="stage3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>data\stage3.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="stage31" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>data\stage3.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="stage4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>data\stage4.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="stage41" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>data\stage4.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>

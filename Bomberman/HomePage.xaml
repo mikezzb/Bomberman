@@ -45,6 +45,6 @@
                 🞃
             </Button>
         </Grid>
-        <Image Margin="286,82,287,229" Source="/Resources/logo.png" Stretch="Fill"/>
+        <Image Margin="286,82,287,229" Source="/Resources/images/logo.png" Stretch="Fill"/>
     </Grid>
 </Page>

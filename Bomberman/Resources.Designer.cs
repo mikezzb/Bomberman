@@ -29,7 +29,7 @@ namespace Bomberman {
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        public Resources() {
+        internal Resources() {
         }
         
         /// <summary>
@@ -79,6 +79,132 @@ namespace Bomberman {
         public static string map {
             get {
                 return ResourceManager.GetString("map", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###############################
+        ///#p * *r       *  ** * *      *#
+        ///# # # # #*# # #*# # # # # #*# #
+        ///#    * * *** **      *    **  #
+        ///# #*# # # # #s# #b#s# # # # #*#
+        ///#          K     **      *  R*#
+        ///# # #*# # # # # #*#*#*#*# # # #
+        ///#   *        *   * *D* *  N   #
+        ///# # # # #*# # # # # # #*# #*# #
+        ///#   ****         *s           #
+        ///# # # # # # # # # #*# # # # #*#
+        ///#  ** *   *    r              #
+        ///###############################.
+        /// </summary>
+        public static string stage1 {
+            get {
+                return ResourceManager.GetString("stage1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###############################
+        ///#p    * **    *   r   r       #
+        ///# # # #*# # # # # # # # # # # #
+        ///#      ** N *  *   * ** r *   #
+        ///# # # # # #*# # # # # # #*# # #
+        ///#*   * K    *b* *   **        #
+        ///# # # # # # # # # # # # # #*# #
+        ///#    *     *        *    **  r#
+        ///# #*# # #*#*#*#*# # #1# # #*# #
+        ///#        * r *r*    *   R     #
+        ///#*# # # # # # # # # # #*# # #*#
+        ///#**    * **    ** **D     s   #
+        ///###############################.
+        /// </summary>
+        public static string stage2 {
+            get {
+                return ResourceManager.GetString("stage2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###############################
+        ///#p    * **    *   r   r       #
+        ///# # # #*# # # # # # # # # # # #
+        ///#      ** N *  *   * ** r *   #
+        ///# # # # # #*#*# # # # # #*# # #
+        ///#*   * K    *b* *   **        #
+        ///# # # # # # #*# # # # # # #*# #
+        ///#    *     *        *    **  r#
+        ///# #*# # #*#*#*#*# # #1# # #*# #
+        ///#        * r *r*    *   R     #
+        ///#*# # # # # # # # # # #*# # #*#
+        ///#**    * **    ** **D     s   #
+        ///###############################.
+        /// </summary>
+        public static string stage3 {
+            get {
+                return ResourceManager.GetString("stage3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###############################
+        ///#p    * **    *   r   r       #
+        ///# # # #*# # # # # # # # # # # #
+        ///#      ** N *  *   * ** r *   #
+        ///# # # # # #*#*# # # # # #*# # #
+        ///#*   * K    *b* *   **        #
+        ///# # # # # # #*# # # # # # #*# #
+        ///#    *     *        *    **  r#
+        ///# #*# # #*#*#*#*# # #1# # #*# #
+        ///#        * r *r*    *   R     #
+        ///#*# # # # # # # # # # #*# # #*#
+        ///#**    * **    ** **D     s   #
+        ///###############################.
+        /// </summary>
+        public static string stage31 {
+            get {
+                return ResourceManager.GetString("stage31", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###############################
+        ///#p    * **    *   r   r       #
+        ///# # # #*# # # # # # # # # # # #
+        ///#      ** N *  *   * ** r *   #
+        ///# # # # # #*#*# # # # # #*# # #
+        ///#*   * K    *b* *   **        #
+        ///# # # # # # #*# # # # # # #*# #
+        ///#    *     *        *    **  r#
+        ///# #*# # #*#*#*#*# # #1# # #*# #
+        ///#        * r *r*    *   R     #
+        ///#*# # # # # # # # # # #*# # #*#
+        ///#**    * **    ** **D     s   #
+        ///###############################.
+        /// </summary>
+        public static string stage4 {
+            get {
+                return ResourceManager.GetString("stage4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ###############################
+        ///#p    * **    *   r   r       #
+        ///# # # #*# # # # # # # # # # # #
+        ///#      ** N *  *   * ** r *   #
+        ///# # # # # #*#*# # # # # #*# # #
+        ///#*   * K    *b* *   **        #
+        ///# # # # # # #*# # # # # # #*# #
+        ///#    *     *        *    **  r#
+        ///# #*# # #*#*#*#*# # #1# # #*# #
+        ///#        * r *r*    *   R     #
+        ///#*# # # # # # # # # # #*# # #*#
+        ///#**    * **    ** **D     s   #
+        ///###############################.
+        /// </summary>
+        public static string stage41 {
+            get {
+                return ResourceManager.GetString("stage41", resourceCulture);
             }
         }
     }

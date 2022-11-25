@@ -21,9 +21,15 @@ namespace Bomberman.GameEngine.MapObjects
       { "left", 2 },
       { "right", 2 },
     };
-    public Mob(int x, int y, MobType type, List<Direction> movableDirs) : base(x, y, type == MobType.RandomWalk ? "oneal" : "minvo", variant, "left")
+    public Mob(int x, int y, MobType type) : base(x, y, type == MobType.RandomWalk ? "oneal" : "minvo", variant, "left")
     {
       Type = type;
+    }
+    /// <summary>
+    /// Pick initial direction
+    /// </summary>
+    public virtual void InitMovement(List<Direction> movableDirs)
+    {
       Debug.WriteLine($"Movable to {movableDirs.Count} dirs");
       if (movableDirs.Count == 0)
       {
@@ -33,7 +39,16 @@ namespace Bomberman.GameEngine.MapObjects
       };
       initDir = Utilities.GetRandomListElement(movableDirs);
       Move(initDir);
-      animatedSprite.SwitchImage("dead");
+    }
+    protected override BeforeNextMoveEventArgs CanMove(Direction dir)
+    {
+      BeforeNextMoveEventArgs e = base.CanMove(dir);
+      if (stuck && !e.Cancel)
+      {
+        Debug.WriteLine($"Unstuck at {dir}");
+        stuck = false;
+      }
+      return e;
     }
     public override void Update()
     {
@@ -41,13 +56,8 @@ namespace Bomberman.GameEngine.MapObjects
       if (stuck && FrameNum % StuckRetryInterval == 0)
       {
         initDir = Utilities.GetRandomDirection();
-        Debug.WriteLine($"[MOB_{Type}]: stuck retry | {CurrDir} | {initDir}");
+        // Debug.WriteLine($"[MOB_{Type}]: stuck retry | {CurrDir} | {initDir}");
         Move(initDir);
-        if (CurrDir == initDir)
-        {
-          Debug.WriteLine($"[MOB_{Type}]: Unstucked at {CurrDir}");
-          stuck = false;
-        }
       }
       base.Update();
     }
