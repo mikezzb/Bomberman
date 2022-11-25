@@ -109,7 +109,6 @@ namespace Bomberman.GameEngine
     private void StartGame()
     {
       state = GameState.Started;
-      HideOverlay();
       game.StartGame();
     }
     public void NewGame()
@@ -131,7 +130,15 @@ namespace Bomberman.GameEngine
         case GameEndType.Cleared:
           Debug.WriteLine("CLEARED");
           sp.PlaySound(GameSound.StageClear, false);
-          text = "CLEARED - PRESS ENTER TO NEXT STAGE";
+          store.SetStageNum(store.StageNum + 1);
+          if (store.GameCleared)
+          {
+            store.SetStageNum(0);
+            text = "CLEARED ALL STAGES - PRESS ENTER TO RESTART";
+          } else
+          {
+            text = "CLEARED - PRESS ENTER TO NEXT STAGE";
+          }
           break;
         case GameEndType.Dead:
           Debug.WriteLine("Dead");
@@ -188,17 +195,6 @@ namespace Bomberman.GameEngine
         game.PlayerStopWalk((Direction)direction);
         return;
       }
-    }
-    private void ShowOverlay(string text, int durationInMs = 2000)
-    {
-      Debug.WriteLine($"Show overlay {text}");
-      OverlayVisibility = Visibility.Visible;
-      OverlayText = text;
-    }
-    private void HideOverlay()
-    {
-      OverlayVisibility = Visibility.Hidden;
-      OverlayText = "";
     }
     public void BindCanvas(Canvas cvs)
     {
