@@ -8,7 +8,7 @@ using System.Windows.Shapes;
 
 namespace Bomberman.GameEngine.Graphics
 {
-  public class Renderer
+  public static class Renderer
   {
     private static Canvas? board;
     public static Canvas Board
@@ -26,7 +26,6 @@ namespace Bomberman.GameEngine.Graphics
         board = value;
       }
     }
-    private Renderer() { }
     public static void DrawImage(Uri uri, double x, double y)
     {
       ImageBrush skin = new ImageBrush();

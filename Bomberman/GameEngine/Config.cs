@@ -11,6 +11,7 @@ namespace Bomberman.GameEngine
     public static readonly int Height = 13;
     public static readonly int Width = 31;
     public static readonly string ImageExt = ".png";
+    public static readonly string SoundExt = ".mp3";
     public static readonly string Map = Resources.map;
     public static readonly int FramesPerCycle = 10;
     public static readonly int FrameDuration = 25;
@@ -26,25 +27,6 @@ namespace Bomberman.GameEngine
     public static readonly int RemoveDeadObjectAfterFrameNum = Utilities.Duration2FrameNum(1000);
     public static readonly int NumFramesTillExplode = Utilities.Duration2FrameNum(2000);
     public static readonly int NumFramesTillExplosionFinish = Utilities.Duration2FrameNum(3000);
-    /// <summary>
-    /// Time to walk 1 unit in ms
-    /// </summary>
-    public static readonly int WalkDuration = FrameDuration * FramesPerCycle;
-    public static readonly Dictionary<Enums.Direction, string> DirectionName = new()
-    {
-      { Enums.Direction.Up, "up" },
-      { Enums.Direction.Down, "down" },
-      { Enums.Direction.Left, "left" },
-      { Enums.Direction.Right, "right" },
-    };
-    public static readonly List<Enums.Direction> Directions = new()
-    {
-      Enums.Direction.Up,
-      Enums.Direction.Down,
-      Enums.Direction.Left,
-      Enums.Direction.Right,
-    };
-    public static readonly HashSet<Enums.Direction> DirectionsSet = new(Directions);
   };
   namespace Enums
   {
@@ -60,6 +42,16 @@ namespace Bomberman.GameEngine
       BombRangePowerup = 'R',
       Key = 'K',
       Door = 'D'
+    }
+    public enum GameSound
+    {
+      Title,
+      StageStart,
+      StageClear,
+      Bgm,
+      GetPowerup,
+      GetKey,
+      GameOver
     }
     public enum GameState
     {

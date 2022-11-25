@@ -101,6 +101,16 @@
     <None Remove="Resources\powerup_flames.png" />
     <None Remove="Resources\powerup_speed.png" />
     <None Remove="Resources\powerup_wallpass.png" />
+    <None Remove="Resources\sounds\01 Title Screen.mp3" />
+    <None Remove="Resources\sounds\02 Stage Start.mp3" />
+    <None Remove="Resources\sounds\03 Main BGM.mp3" />
+    <None Remove="Resources\sounds\04 Power-Up Get.mp3" />
+    <None Remove="Resources\sounds\05 Stage Clear.mp3" />
+    <None Remove="Resources\sounds\06 Bonus Stage.mp3" />
+    <None Remove="Resources\sounds\07 Special Power-Up Get.mp3" />
+    <None Remove="Resources\sounds\08 Ending.mp3" />
+    <None Remove="Resources\sounds\09 Miss.mp3" />
+    <None Remove="Resources\sounds\10 Game Over.mp3" />
     <None Remove="Resources\wall.png" />
   </ItemGroup>
 
@@ -396,6 +406,39 @@
 
   <ItemGroup>
     <EmbeddedResource Include="data\map.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\sounds\01 Title Screen.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\02 Stage Start.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\03 Main BGM.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\04 Power-Up Get.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\05 Stage Clear.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\06 Bonus Stage.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\07 Special Power-Up Get.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\08 Ending.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\09 Miss.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\sounds\10 Game Over.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

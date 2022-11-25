@@ -195,7 +195,7 @@ namespace Bomberman.GameEngine.MapObjects
     /// </summary>
     public void SwitchMoveImage()
     {
-      string directionName = Config.DirectionName[(Direction)currDir];
+      string directionName = Constants.DirectionName[(Direction)currDir];
       animatedSprite.SwitchImage(directionName);
     }
 

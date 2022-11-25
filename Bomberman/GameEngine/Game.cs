@@ -568,7 +568,7 @@ namespace Bomberman.GameEngine
     {
       List<Direction> directions = new List<Direction>();
       // IntPoint from = obj.GridPosition;
-      foreach (Direction dir in Config.Directions)
+      foreach (Direction dir in Constants.Directions)
       {
         if (dir == exceptDir) continue;
         IntPoint to = pos.PostTranslatePosition(dir);

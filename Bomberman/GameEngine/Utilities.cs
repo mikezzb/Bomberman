@@ -37,7 +37,7 @@ namespace Bomberman.GameEngine
     }
     public static HashSet<Direction> DirectionsExclude(HashSet<Direction> dirSet)
     {
-      HashSet<Direction> result = new(Config.DirectionsSet);
+      HashSet<Direction> result = new(Constants.DirectionsSet);
       result.ExceptWith(dirSet);
       return result;
     }
