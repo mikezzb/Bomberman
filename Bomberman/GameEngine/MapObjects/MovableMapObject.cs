@@ -24,6 +24,7 @@ namespace Bomberman.GameEngine.MapObjects
     private bool stopAfterMove;
     public bool Moving { get => currDir != null; }
     public Direction? CurrDir { get => currDir; }
+    public Direction? ProvisionalDir { get => currDir ?? nextDir; }
     public event EventHandler<BeforeNextMoveEventArgs> BeforeNextMove;
 
     public MovableGridPosition MovablePosition { get => movablePosition; }
@@ -44,7 +45,7 @@ namespace Bomberman.GameEngine.MapObjects
     private double WalkSize { get => (speed / Config.FramesPerCycle); }
     public IntPoint PostMovePosition(Direction dir)
     {
-      return movablePosition.PostTranslatePosition(dir);
+      return movablePosition.PostTranslatePosition((dir));
     }
     /// <summary>
     /// Move image on canvas (for walking animation)
@@ -206,20 +207,6 @@ namespace Bomberman.GameEngine.MapObjects
     {
       string directionName = Constants.DirectionName[(Direction)currDir];
       animatedSprite.SwitchImage(directionName);
-    }
-
-    // speed
-    protected void SetSpeed(double speed)
-    {
-      this.speed = speed;
-    }
-    protected virtual void SpeedUp()
-    {
-      speed *= 1.2;
-    }
-    protected virtual void SpeedDown()
-    {
-      speed /= 1.2;
     }
     /// <summary>
     /// Remove from map, play dead animation before if havn't

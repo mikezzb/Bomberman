@@ -58,10 +58,6 @@ namespace Bomberman.GameEngine.MapObjects
       Debug.WriteLine($"Apply powerup: {powerup.Type}");
       switch (powerup.Type)
       {
-        case PowerupType.Speed:
-          Debug.WriteLine("Speed up");
-          SpeedUp();
-          break;
         case PowerupType.BombRange:
           Debug.WriteLine("Bomb range up");
           BombRange++;

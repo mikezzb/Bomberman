@@ -3,7 +3,7 @@ using System;
 
 namespace Bomberman.GameEngine
 {
-  public class IntPoint
+  public class IntPoint : IEquatable<IntPoint>
   {
     public int X { get; protected set; }
     public int Y { get; protected set; }
@@ -19,6 +19,11 @@ namespace Bomberman.GameEngine
     public int Index
     {
       get => X * Config.Width + Y;
+    }
+    public bool Equals(IntPoint? p2)
+    {
+      if (p2 == null) return false;
+      return X == p2.X && Y == p2.Y;
     }
   }
   public class GameEngineRect

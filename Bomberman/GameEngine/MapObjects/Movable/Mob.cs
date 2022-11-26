@@ -64,7 +64,7 @@ namespace Bomberman.GameEngine.MapObjects
     /// <summary>
     /// Callback after intersection reached
     /// </summary>
-    public virtual void OnIntersectionReached(HashSet<Direction> movableDirs, BeforeNextMoveEventArgs e)
+    public virtual void OnIntersectionReached(HashSet<Direction> movableDirs, BeforeNextMoveEventArgs? e)
     {
       Direction currDir = CurrDir ?? initDir;
       // Debug.WriteLine($"On intersection: {currDir}");
@@ -99,13 +99,37 @@ namespace Bomberman.GameEngine.MapObjects
       {
         // Debug.WriteLine($"[MOB_{Type}]: valid move to {nextDir}");
         ResetMove((Direction)nextDir);
-        e.TurnDirection = nextDir;
+        if (e != null)
+        {
+          e.TurnDirection = nextDir;
+        }
       }
       else
       {
         stuck = true;
-        Debug.WriteLine($"[MOB_{Type}]: Invalid move");
+        // Debug.WriteLine($"[MOB_{Type}]: Invalid move");
       }
+    }
+    /// <summary>
+    /// Determine if will collide with another mob
+    /// </summary>
+    public virtual bool WillCollide(Mob m2)
+    {
+      if (ProvisionalDir == null || m2.ProvisionalDir == null) return false;
+      Direction m1Dir = (Direction)ProvisionalDir;
+      Direction m2Dir = (Direction)m2.ProvisionalDir;
+      IntPoint m1To = PostMovePosition(m1Dir);
+      IntPoint m2To = m2.PostMovePosition(m2Dir);
+      bool possibleToCollide = false;
+      if (m1To.X == m2To.X)
+      {
+        possibleToCollide = true;
+      };
+      if (m1To.Y == m2To.Y)
+      {
+        possibleToCollide = true;
+      };
+      return possibleToCollide;
     }
   }
 }
