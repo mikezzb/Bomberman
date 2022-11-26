@@ -15,7 +15,7 @@ namespace Bomberman.GameEngine.MapObjects
       { Direction.Up, "vertical" },
       { Direction.Down, "vertical" }
     };
-    private static readonly Dictionary<string, int?> variants = new()
+    private static readonly Dictionary<string, int?> variant = new()
     {
       { "original", 2 },
       { "exploded", 2 }
@@ -29,7 +29,7 @@ namespace Bomberman.GameEngine.MapObjects
     private int maxY = 0;
     private GameEngineRect? explosionHorizontalRect;
     private GameEngineRect? explosionVerticalRect;
-    public Bomb(int x, int y, int range, EventHandler ExplodeHandler, Action<MapObject> removeCallback) : base(x, y, "bomb", variants, "original", 1)
+    public Bomb(int x, int y, int range, EventHandler ExplodeHandler, Action<MapObject> removeCallback) : base(x, y, "bomb", variant, "original", 1)
     {
       this.removeCallback = removeCallback;
       ExplodeEvent += ExplodeHandler;
