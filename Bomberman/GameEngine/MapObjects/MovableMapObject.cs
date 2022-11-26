@@ -27,15 +27,20 @@ namespace Bomberman.GameEngine.MapObjects
     public event EventHandler<BeforeNextMoveEventArgs> BeforeNextMove;
 
     public MovableGridPosition MovablePosition { get => movablePosition; }
-    protected MovableMapObject(int x, int y, EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove, string name, Dictionary<string, int?>? variant, string? defaultVariant, double speed = 1.0, int zIndex = 2) : base()
+    protected MovableMapObject(int x, int y, EventHandler<BeforeNextMoveEventArgs> onBeforeNextMove, string name, Dictionary<string, int?>? variant, string? defaultVariant, double speed = 1.0, int zIndex = 2) : base(x, y, name, variant, defaultVariant, zIndex)
     {
-      BeforeNextMove += onBeforeNextMove;
-      this.speed = speed;
-      Position = new MovableGridPosition(x, y);
-      sprite = new AnimatedSprite(name, variant, defaultVariant, Position, zIndex, true);
       animatedSprite = (AnimatedSprite)sprite;
       movablePosition = (MovableGridPosition)Position;
-      Debug.WriteLine($"Speed {this.speed} | {WalkSize}");
+      BeforeNextMove += onBeforeNextMove;
+      this.speed = speed;
+    }
+    protected override GridPosition CreatePosition(int x, int y)
+    {
+      return new MovableGridPosition(x, y);
+    }
+    protected override Sprite CreateSprite(string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1)
+    {
+      return new AnimatedSprite(name, variant, defaultVariant, Position, zIndex, true);
     }
     private double WalkSize { get => (speed / Config.FramesPerCycle); }
     public IntPoint PostMovePosition(Direction dir)

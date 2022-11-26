@@ -8,7 +8,7 @@ namespace Bomberman.GameEngine
     public static readonly int MobMinX = 0;
     public static readonly int MobMinY = 0;
     public static readonly int NumStages = 4;
-    public static readonly int GameDuration = 5;
+    public static readonly int GameDuration = 300;
     public static readonly int ItemSize = 40;
     public static readonly int Height = 13;
     public static readonly int Width = 31;

@@ -14,11 +14,13 @@ namespace Bomberman.GameEngine.MapObjects
   {
     public int FrameNum { get; protected set; }
     protected AnimatedSprite animatedSprite;
-    protected AnimatedMapObject() : base() { }
-    protected AnimatedMapObject(int x, int y, string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1) : base(x, y)
+    protected AnimatedMapObject(int x, int y, string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1) : base(x, y, name, variant, defaultVariant, zIndex)
     {
-      animatedSprite = new AnimatedSprite(name, variant, defaultVariant, Position, zIndex);
-      sprite = animatedSprite;
+      animatedSprite = (AnimatedSprite)sprite;
+    }
+    protected override Sprite CreateSprite(string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1)
+    {
+      return new AnimatedSprite(name, variant, defaultVariant, Position, zIndex);
     }
     /// <summary>
     /// Update the animated sprite

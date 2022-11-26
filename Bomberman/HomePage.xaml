@@ -29,11 +29,11 @@
         </Style>
     </Page.Resources>
     <Grid>
-        <Button x:Name="StartBtn" Click="StartBtn_Click" Focusable="True" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="476,465,0,0" VerticalAlignment="Top">
+        <Button x:Name="StartBtn" Click="StartBtn_Click" Focusable="False" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="476,465,0,0" VerticalAlignment="Top">
             🞂 START
         </Button>
         <Grid>
-            <Button x:Name="StageIncrBtn" Click="StageIncrBtn_Click" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="675,429,0,0" VerticalAlignment="Top">
+            <Button x:Name="StageIncrBtn" Focusable="False"  Click="StageIncrBtn_Click" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="675,429,0,0" VerticalAlignment="Top">
                 🞁
             </Button>
             <TextBlock Style="{StaticResource MyTextStyle}" x:Name="stageText" Text="{Binding StageText, FallbackValue=STAGE 0}" Margin="641,471,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -41,7 +41,7 @@
                     <DropShadowEffect ShadowDepth="1" BlurRadius="1" Color="Black" />
                 </TextBlock.Effect>
             </TextBlock>
-            <Button x:Name="StageDescBtn" Click="StageDescBtn_Click" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="675,507,0,0" VerticalAlignment="Top">
+            <Button x:Name="StageDescBtn" Focusable="False"  Click="StageDescBtn_Click" Style="{StaticResource MyButtonStyle}" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Margin="675,507,0,0" VerticalAlignment="Top">
                 🞃
             </Button>
         </Grid>

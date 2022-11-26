@@ -437,6 +437,7 @@ namespace Bomberman.GameEngine
       if (key != null && player.Position.Index == key.Position.Index)
       {
         player.ApplyKey();
+        sp.PlayInterruptSound(GameSound.GetKey);
         RemoveKey();
       }
       // door collision
@@ -450,6 +451,7 @@ namespace Bomberman.GameEngine
         Powerup powerup = powerups[player.Position.Index];
         powerups.Remove(player.Position.Index);
         player.ApplyPowerup(powerup);
+        sp.PlayInterruptSound(GameSound.GetPowerup);
         RemovePowerup(powerup);
       }
       // bomb collision

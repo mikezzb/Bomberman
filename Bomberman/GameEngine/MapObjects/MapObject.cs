@@ -14,17 +14,18 @@ namespace Bomberman.GameEngine.MapObjects
   {
     public GridPosition Position { get; protected set; }
     protected Sprite sprite;
-    /// <summary>
-    /// Do nothing constructor for inherited class to define their own
-    /// </summary>
-    protected MapObject() { }
-    protected MapObject(int x, int y)
+    protected MapObject(int x, int y, string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1)
     {
-      Position = new GridPosition(x, y);
+      Position = CreatePosition(x, y);
+      sprite = CreateSprite(name, variant, defaultVariant, zIndex);
     }
-    protected MapObject(int x, int y, string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1) : this(x, y)
+    protected virtual GridPosition CreatePosition(int x, int y)
     {
-      sprite = new Sprite(name, variant, defaultVariant, Position, zIndex);
+      return new GridPosition(x, y);
+    }
+    protected virtual Sprite CreateSprite(string name, Dictionary<string, int?>? variant = null, string? defaultVariant = null, int zIndex = 1)
+    {
+      return new Sprite(name, variant, defaultVariant, Position, zIndex);
     }
     public virtual void Remove()
     {
